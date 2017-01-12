@@ -202,11 +202,12 @@ rect.zoom {
       var ws = JSON.stringify(w);
       var cs = d3.select("input#c0").node().value;
       var fs = d3.select("input#userdef").node().value;
+      var userfunc = eval("(function(c, x) { with(Math) return (" + fs + ") })");
       Module.user_defined.func_def = fs;
       var l = "[-Inf, -Inf, -Inf, -Inf]";
       var u = "[ Inf,  Inf,  Inf,  Inf]";
       var start_time = Date.now();
-      var result = Module.fit_user_defined(xs, ys, ws, cs, l, u);
+      var result = Module.fit_user_defined(xs, ys, ws, cs, l, u, userfunc);
       var result_obj = JSON.parse(result);
       var end_time = Date.now();
       d3.select("#result_text").text(result);
@@ -240,7 +241,7 @@ rect.zoom {
     <br>
     <button id="run_userdef">User defined fit</button>
     <label>Function definition: 
-      <input type="text" id="userdef" value="c[0] * exp(-pow((x[0] - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
+      <input type="text" id="userdef" value="c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
     </label>
     <div id="result_text"></div>
   </div>

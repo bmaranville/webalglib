@@ -32,14 +32,15 @@ void function_gaussian(const real_1d_array &c, const real_1d_array &x, double &f
 }
 
 void function_user_defined(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) 
-{
-    string c_context = "with({c: " + c.tostring(-12) +"}) ";
-    string x_context = "with({x: " + x.tostring(-12) +"}) ";
-    string math_context = "with(Math) ";    
-    string *func_def = static_cast<string*>(ptr);
-    string to_eval = c_context + x_context + math_context + *func_def;
-    const char* output=emscripten_run_script_string(to_eval.c_str()); 
-    func = atof(output);
+{   
+    val c_array = val::array();
+    for (size_t ci=0; ci<c.length(); ci++) {
+        c_array.set(ci, c[ci]);
+    }
+    val user_defined = val::module_property("user_defined")["compiled_function"];
+    val output = user_defined(c_array, x[0]);
+
+    func = output.as<double>();
 }
 
 void eval_func(
@@ -175,14 +176,13 @@ string fit_user_defined(
     const string ws,
     const string cs,
     const string lower_bound,
-    const string upper_bound
+    const string upper_bound,
+    emscripten::val user_func
 )
 {
-    val user_defined = val::module_property("user_defined")["func_def"];
-    val func_def = val::module_property("user_defined")["func_def"];
-    string fdef = func_def.as<string>();
+    val::module_property("user_defined").set("compiled_function", user_func);
     
-    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_user_defined, &fdef);
+    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_user_defined);
 }
 
 EMSCRIPTEN_BINDINGS(fit_exp_module) {
