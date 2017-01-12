@@ -4,12 +4,17 @@
 #include <math.h>
 #include "interpolation.h"
 #include <emscripten/bind.h>
+#include <emscripten.h>
 
 using std::string;
 using std::vector;
-//using namespace emscripten;
+using emscripten::val;
+using namespace emscripten;
 
 using namespace alglib;
+
+typedef void (*fptr)(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr);
+
 void function_exp_decay(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) 
 {
     // this callback calculates f(c,x)=exp(-c0*sqr(x0))
@@ -26,11 +31,23 @@ void function_gaussian(const real_1d_array &c, const real_1d_array &x, double &f
     func = c[0] * exp(-pow((x[0] - c[1]),2)/(2.0*pow(c[2], 2))) + c[3];
 }
 
+void function_user_defined(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) 
+{
+    string c_context = "with({c: " + c.tostring(-12) +"}) ";
+    string x_context = "with({x: " + x.tostring(-12) +"}) ";
+    string math_context = "with(Math) ";    
+    string *func_def = static_cast<string*>(ptr);
+    string to_eval = c_context + x_context + math_context + *func_def;
+    const char* output=emscripten_run_script_string(to_eval.c_str()); 
+    func = atof(output);
+}
+
 void eval_func(
-    void (*func)(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr),
+    fptr func,
     const real_1d_array &c, 
     const real_2d_array &x, 
-    real_1d_array &y
+    real_1d_array &y,
+    void* option_ptr=NULL
 ) 
 {
     int length = x.rows();
@@ -41,15 +58,32 @@ void eval_func(
     for (int i=0; i<length; i++) {
         xx.setcontent(1, x[i]); 
         //xx[0] = x[i][0];
-        func(c, xx, yy, NULL);
+        func(c, xx, yy, option_ptr);
         y[i] = yy;
     }
 }
 
-void test() {
-    real_1d_array y = "[0.223130, 0.382893, 0.582748, 0.786628, 0.941765, 1.000000, 0.941765, 0.786628, 0.582748, 0.382893, 0.223130]";
-    printf("%s\n", y.tostring(6).c_str());
+val test() {
+    real_1d_array x = "[0,1,2,4]";
+    const double* xa = x.getcontent();
+    const size_t length = x.length();
+    std::vector<double> xv(xa, xa + length);
+    val output = emscripten::val::array();
+    val user_def = val::module_property("user_defined");
+    user_def.set("func_string", val("myfunc"));
+    
+    return val(xv);
 }
+
+string user_defined(string func_def) {
+    real_1d_array x = "[1e-7,1,2,4]";
+    string x_def = "with({x: " + x.tostring(-6) + "}) ";
+    string to_eval = x_def + func_def;
+    //emscripten_run_script(to_eval);
+    string output=emscripten_run_script_string(to_eval.c_str()); 
+    return output;
+}
+
 
 void test_vector(vector<double> v) {
     real_1d_array y;
@@ -72,7 +106,8 @@ string fit_1d(
     const string cs,
     const string lower_bound,
     const string upper_bound,
-    void (*func)(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr)
+    fptr func,
+    void* option_ptr=NULL
 )
 {
     real_2d_array x = xs.c_str();
@@ -94,14 +129,16 @@ string fit_1d(
     lsfitcreatewf(x, y, w, c, diffstep, state);
     lsfitsetbc(state, bndl, bndu);
     lsfitsetcond(state, epsf, epsx, maxits);
-    alglib::lsfitfit(state, func);
+    alglib::lsfitfit(state, func, NULL, option_ptr);
     lsfitresults(state, info, c, rep);
     
     real_1d_array y_fit;
-    eval_func(func, c, x, y_fit);
+    eval_func(func, c, x, y_fit, option_ptr);
     output += "  \"c\": " + c.tostring(6) + ",\n";
     output += "  \"c_err\": " + rep.errpar.tostring(6) + ",\n";
-    output += "  \"iterations\": " + std::to_string(rep.iterationscount) + "\n";
+    output += "  \"iterations\": " + std::to_string(rep.iterationscount) + ",\n";
+    output += "  \"rmserror\": " + std::to_string(rep.rmserror) + ",\n";
+    output += "  \"wrmserror\": " + std::to_string(rep.wrmserror) + "\n";
     
     //output += "  \"y_fit\": " + y_fit.tostring(6) + "\n";
     output += "}"; 
@@ -132,6 +169,22 @@ string fit_gaussian(
     return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_gaussian);
 }
 
+string fit_user_defined(
+    const string xs,
+    const string ys,
+    const string ws,
+    const string cs,
+    const string lower_bound,
+    const string upper_bound
+)
+{
+    val user_defined = val::module_property("user_defined")["func_def"];
+    val func_def = val::module_property("user_defined")["func_def"];
+    string fdef = func_def.as<string>();
+    
+    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_user_defined, &fdef);
+}
+
 EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::register_vector<double>("VectorDouble");
     emscripten::function("test", &test);
@@ -139,4 +192,6 @@ EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::function("test_string", &test_string);
     emscripten::function("fit_exp_decay", &fit_exp_decay);
     emscripten::function("fit_gaussian", &fit_gaussian);
+    emscripten::function("fit_user_defined", &fit_user_defined);
+    emscripten::constant("user_defined", val::object());
 };
