@@ -134,19 +134,21 @@ rect.zoom {
   function gauss(c, x) {
     return (c[0] * Math.exp(-Math.pow((x - c[1]), 2) / (2.0 * Math.pow(c[2], 2))) + c[3]) 
   };
+  var source_data = {};
   window.onload = function() {
-    x = d3.range(0, 4, 0.2);
-    x_fit = d3.range(0, 4, 0.04);
+    var x = d3.range(0, 4, 0.2);
+    //var x_fit = d3.range(0, 4, 0.04);
     // c = [amp, x0, sigma, y0]
-    c = [100.0, 2.0, 0.5, 0.1];
-    x_out = x.map(function(d) { return [d] });
-    y = x.map(function(d) { return gauss(c,d) });
+    var c = [100.0, 2.0, 0.5, 0.1];
+    var x_out = x.map(function(d) { return [d] });
+    var y = x.map(function(d) { return gauss(c,d) });
     
-    y_scatt = y.map(function(d) { 
+    var y_scatt = y.map(function(d) { 
       var dy = Math.sqrt(d) + 0.5;
       return d + normal() * dy;
     });
-    w = y.map(function(d) { return 1.0 / Math.sqrt((Math.abs(d) + 0.25)) });
+    var w = y.map(function(d) { return 1.0 / Math.sqrt((Math.abs(d) + 0.25)) });
+    var data;
     if (add_noise) {
       data = y_scatt.map(function(d,i) { 
         var dy = Math.sqrt(Math.abs(d) + 0.25);
@@ -163,7 +165,7 @@ rect.zoom {
         return [x[i], d]
       })
     }
-    options = {
+    var options = {
       series: [
         {label: 'data', show_line: false, show_errorbars: true},
         {label: 'fit', show_line: true, show_errorbars: false, show_points: false}
@@ -171,9 +173,16 @@ rect.zoom {
       ytransform: 'linear', 
       legend: {show: true},
       show_errorbars: true}
-    chart = new xyChart.default(options);
+    window.chart = new xyChart.default(options);
     d3.select("#plot").data([[data]]).call(chart);
     chart.zoomRect(true);
+    
+    source_data.x = x;
+    source_data.y = y;
+    source_data.w = w;
+    source_data.u = "";
+    source_data.l = "";
+    
     
     d3.select("button#run_gaussian").on('click', function() { 
       var xs = JSON.stringify(x_out);
@@ -190,6 +199,9 @@ rect.zoom {
       console.log("fitting time (ms): ", end_time - start_time);
       //alert("fitting time (ms): " + (end_time - start_time).toFixed());
       var sd = chart.source_data();
+      var x_range = d3.extent(x);
+      var dx = (x_range[1] - x_range[0])/200 || 0.1; 
+      var x_fit = d3.range(x_range[0], x_range[1], dx);
       sd[1] = x_fit.map(function(d) {
         return [d, gauss(result_obj.c, d)]
       });
@@ -204,7 +216,7 @@ rect.zoom {
       var fs = d3.select("input#userdef").node().value;
       var userfunc = eval("(function(c, x) { with(Math) return (" + fs + ") })");
       Module.user_defined.func_def = fs;
-      var l = "[-Inf, -Inf, -Inf, -Inf]";
+      var l = ""; //"[-Inf, -Inf, -Inf, -Inf]";
       var u = "[ Inf,  Inf,  Inf,  Inf]";
       var start_time = Date.now();
       var result = Module.fit_user_defined(xs, ys, ws, cs, l, u, userfunc);
@@ -215,6 +227,9 @@ rect.zoom {
       //alert("fitting time (ms): " + (end_time - start_time).toFixed());
       var c_context = {c: result_obj.c};
       var sd = chart.source_data();
+      var x_range = d3.extent(x);
+      var dx = (x_range[1] - x_range[0])/200 || 0.1; 
+      var x_fit = d3.range(x_range[0], x_range[1], dx);
       sd[1] = x_fit.map(function(d) {
         var x_context = {x: [d.toPrecision(12)]};
         var y_fit;
@@ -223,6 +238,37 @@ rect.zoom {
       });
       chart.source_data(sd);
     });
+    
+    d3.select("input#upload_file").on('change', function() {
+    
+    })
+    
+    function import_data() {
+      var file_input = document.getElementById('upload_file');
+      var file = file_input.files[0]; // only one file allowed
+      var result = null;
+      file_input.value = "";
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var new_data = d3.tsv.parse(this.result);
+        new_data.forEach(function(d) {
+          for (var key in d) {
+            if (d.hasOwnProperty(key)) {
+              // convert everything to numbers.
+              d[key] = +d[key];
+            }
+          }
+        });
+        initial_sld.splice(0, initial_sld.length + 1);
+        $.extend(true, initial_sld, new_data);
+        table_draw(initial_sld);
+        update_profile_limits(initial_sld);
+        profile_interactor.update();
+        sld_plot.resetzoom();
+        update_plot_live();
+      }
+      reader.readAsText(file);
+    }
   }   
 </script>
 <style>
@@ -232,6 +278,11 @@ rect.zoom {
   }
 </style>
 <body>
+  <div id="top">
+    <label>Upload tab-delimited data (x y {optional dy}) 
+      <input type="file" multiple="false" id="upload_file" />
+    </label>
+  </div>
   <div id="plot" class="plotdiv"></div>
   <div id="results" class="results">
     <button id="run_gaussian">Gauss fit</button>
@@ -243,7 +294,7 @@ rect.zoom {
     <label>Function definition: 
       <input type="text" id="userdef" value="c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
     </label>
-    <div id="result_text"></div>
+    <pre id="result_text"></pre>
   </div>
 </body>
 </html>

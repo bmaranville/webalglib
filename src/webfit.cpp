@@ -115,8 +115,6 @@ string fit_1d(
     real_1d_array y = ys.c_str();
     real_1d_array w = ws.c_str();
     real_1d_array c = cs.c_str();
-    real_1d_array bndl = lower_bound.c_str();
-    real_1d_array bndu = upper_bound.c_str();
     string output = "{\n";
     
     double epsf = 0;
@@ -128,7 +126,11 @@ string fit_1d(
     double diffstep = 0.0001;    
     
     lsfitcreatewf(x, y, w, c, diffstep, state);
-    lsfitsetbc(state, bndl, bndu);
+    if (lower_bound.length() > 0 && upper_bound.length() > 0) { 
+        real_1d_array bndl = lower_bound.c_str();
+        real_1d_array bndu = upper_bound.c_str();
+        lsfitsetbc(state, bndl, bndu);
+    }
     lsfitsetcond(state, epsf, epsx, maxits);
     alglib::lsfitfit(state, func, NULL, option_ptr);
     lsfitresults(state, info, c, rep);
