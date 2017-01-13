@@ -301,7 +301,7 @@ circle.corner {
       var interpreted_params = JSON.stringify(interpret_params(result_obj.c), null, 2);
       var interpreted_err = JSON.stringify(interpret_params(result_obj.c_err, "_err"), null, 2);
       var end_time = Date.now();
-      d3.select("#result_text").text(interpreted_params + "\n" + interpreted_err);
+      d3.select("#result_text").text(interpreted_params + "\n" + interpreted_err + "\n" + result);
       console.log("fitting time (ms): ", end_time - start_time);
       //alert("fitting time (ms): " + (end_time - start_time).toFixed());
       var c_context = {c: result_obj.c};
