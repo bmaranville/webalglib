@@ -9,8 +9,14 @@
 
 html, body {
   position: relative;
-  height: 100%;
+  /*height: 100%;*/
   font-family: sans !important;
+}
+
+div.footer {
+  position: absolute;
+  bottom: 0px;
+  text-align: center;
 }
 
 #plot1 {
@@ -326,6 +332,11 @@ rect.zoom {
       <input type="text" id="userdef" value="c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
     </label>
     <pre id="result_text"></pre>
+  </div>
+  <div id="bottom" class="footer">
+  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
+    and <a href="https://kripken.github.io/emscripten-site/">emscripten</a>
+    and <a href="https://d3js.org/">d3.js</a>
   </div>
 </body>
 </html>
