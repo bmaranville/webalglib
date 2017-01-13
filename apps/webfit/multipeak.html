@@ -270,12 +270,26 @@ circle.corner {
     
     chart.svg.on("dblclick.resetzoom", null);
     chart.svg.on("dblclick.add_peaks", function() {
+      var target = d3.event.target,
+          d3target = d3.select(target);
+      if (target.tagName == "circle" && d3target.classed("corner")) {
+        var point_num, t; 
+        chart.svg.selectAll("circle.corner").each(function(d,i) { 
+          if (this==target) { point_num = i; } 
+        });
+        if (point_num != null) { 
+          center_points.state.points.splice(point_num, 1);
+          center_points.update();
+          return;
+        }
+      }
       var mouse = d3.mouse(chart.g.node());
       var x = chart.x().invert(mouse[0]),
           y = chart.y().invert(mouse[1]);
       center_points.state.points.push([x,y]);
       chart.update();
     });
+    
     
     d3.select("button#reset_zoom").on('click', function() { chart.resetzoom(); });
     d3.select("button#clear_peaks").on('click', function() { center_points.state.points = []; chart.update(); });
@@ -396,7 +410,7 @@ circle.corner {
   <div id="plot" class="plotdiv"></div>
   <div id="results" class="results">
     <button id="reset_zoom">Reset zoom</button>
-    <button id="clear_peaks">Clear peaks</button>(double-click on graph to add peaks)
+    <button id="clear_peaks">Clear peaks</button>(double-click on graph to add/remove peaks)
     <button id="run_multigauss">Multigauss fit</button>
     <br>
     <pre id="result_text"></pre>
