@@ -260,7 +260,7 @@ circle.corner {
     window.center_points = new polygonInteractor.default(opts_points);
     d3.select("#plot").data([[data]]).call(chart);
     chart.interactors(center_points);
-    chart.zoomRect(true);
+    chart.zoomScroll(true);
     
     source_data.x = x;
     source_data.y = y_scatt;
@@ -276,7 +276,8 @@ circle.corner {
       center_points.state.points.push([x,y]);
       chart.update();
     });
-      
+    
+    d3.select("button#reset_zoom").on('click', function() { chart.resetzoom(); });
     d3.select("button#clear_peaks").on('click', function() { center_points.state.points = []; chart.update(); });
     
     d3.select("button#run_multigauss").on('click', function() { 
@@ -394,6 +395,7 @@ circle.corner {
   </div>
   <div id="plot" class="plotdiv"></div>
   <div id="results" class="results">
+    <button id="reset_zoom">Reset zoom</button>
     <button id="clear_peaks">Clear peaks</button>(double-click on graph to add peaks)
     <button id="run_multigauss">Multigauss fit</button>
     <br>
