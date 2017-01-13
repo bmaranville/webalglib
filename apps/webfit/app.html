@@ -1,4 +1,5 @@
 <html>
+  <title>Levenberg-Marquardt weighted fitting</title>
   <script src="app.js"></script>
   <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <link rel="stylesheet" src="//www.ncnr.nist.gov/instruments/magik/calculators/css/calcR.css" />
@@ -140,7 +141,6 @@ rect.zoom {
     //var x_fit = d3.range(0, 4, 0.04);
     // c = [amp, x0, sigma, y0]
     var c = [100.0, 2.0, 0.5, 0.1];
-    var x_out = x.map(function(d) { return [d] });
     var y = x.map(function(d) { return gauss(c,d) });
     
     var y_scatt = y.map(function(d) { 
@@ -178,16 +178,18 @@ rect.zoom {
     chart.zoomRect(true);
     
     source_data.x = x;
-    source_data.y = y;
+    source_data.y = y_scatt;
     source_data.w = w;
     source_data.u = "";
     source_data.l = "";
     
     
     d3.select("button#run_gaussian").on('click', function() { 
+      var x = source_data.x;
+      var x_out = x.map(function(d) { return [d] });
       var xs = JSON.stringify(x_out);
-      var ys = (add_noise) ? JSON.stringify(y_scatt) : JSON.stringify(y);
-      var ws = JSON.stringify(w);
+      var ys =  JSON.stringify(source_data.y);
+      var ws = JSON.stringify(source_data.w);
       var cs = d3.select("input#c0").node().value;
       var l = "[-Inf, -Inf, -Inf, -Inf]";
       var u = "[ Inf,  Inf,  Inf,  Inf]";
@@ -209,9 +211,11 @@ rect.zoom {
     });
     
     d3.select("button#run_userdef").on('click', function() { 
+      var x = source_data.x;
+      var x_out = x.map(function(d) { return [d] });
       var xs = JSON.stringify(x_out);
-      var ys = (add_noise) ? JSON.stringify(y_scatt) : JSON.stringify(y);
-      var ws = JSON.stringify(w);
+      var ys =  JSON.stringify(source_data.y);
+      var ws = JSON.stringify(source_data.w);
       var cs = d3.select("input#c0").node().value;
       var fs = d3.select("input#userdef").node().value;
       var userfunc = eval("(function(c, x) { with(Math) return (" + fs + ") })");
@@ -239,9 +243,7 @@ rect.zoom {
       chart.source_data(sd);
     });
     
-    d3.select("input#upload_file").on('change', function() {
-    
-    })
+    d3.select("input#upload_file").on('change', import_data);
     
     function import_data() {
       var file_input = document.getElementById('upload_file');
@@ -250,23 +252,52 @@ rect.zoom {
       file_input.value = "";
       var reader = new FileReader();
       reader.onload = function(e) {
-        var new_data = d3.tsv.parse(this.result);
-        new_data.forEach(function(d) {
-          for (var key in d) {
-            if (d.hasOwnProperty(key)) {
-              // convert everything to numbers.
-              d[key] = +d[key];
+        var raw_data = this.result;
+        var row, 
+            x = [], 
+            y = [], 
+            dy = [],
+            xmax = -Infinity,
+            xmin = +Infinity;
+        var lines = raw_data.split(/\r\n|\r|\n/g);
+        for (var i in lines) {
+          row = lines[i];
+          if (row[0] == '#') {
+            // header: skip for now
+          }
+          else {
+            var rowdata = row.split(/[\s,]+/)
+            if (rowdata.length >= 2) {
+                x.push(+(rowdata[0]));
+                //xmax = Math.max(xmax, x);
+                //xmin = Math.min(xmin, x);
+                y.push(+(rowdata[1]));
+                dy.push((rowdata[2] !=  null) ? +(rowdata[2]) : null);
             }
           }
+        }
+        
+        source_data.x = x;
+        source_data.y = y;
+        source_data.w = dy.map(function(d) { return 1.0 / (d || 0.5) });
+        
+        var data = x.map(function(d,i) {
+          var out = [x[i], y[i]];
+          if (dy[i] != null) {
+            out[2] = {
+              xlower: x[i],
+              xupper: x[i],
+              ylower: y[i] - dy[i],
+              yupper: y[i] + dy[i]
+            }
+          }
+          return out;
         });
-        initial_sld.splice(0, initial_sld.length + 1);
-        $.extend(true, initial_sld, new_data);
-        table_draw(initial_sld);
-        update_profile_limits(initial_sld);
-        profile_interactor.update();
-        sld_plot.resetzoom();
-        update_plot_live();
+        var sd = chart.source_data() || [];
+        sd[0] = data;
+        chart.source_data(sd);
       }
+    
       reader.readAsText(file);
     }
   }   
