@@ -187,6 +187,17 @@ string fit_user_defined(
     return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_user_defined);
 }
 
+struct Export_Math {
+};
+
+double brillouin( double J, double x ) {
+    if ( x == 0 ) { return 0; } 
+    else {
+        return (2*J+1)/(2*J)/tanh((2*J+1)/(2*J)*x) - 
+            1/(2*J)/tanh(1/(2*J)*x);
+    }
+}
+
 EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::register_vector<double>("VectorDouble");
     emscripten::function("test", &test);
@@ -196,4 +207,11 @@ EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::function("fit_gaussian", &fit_gaussian);
     emscripten::function("fit_user_defined", &fit_user_defined);
     emscripten::constant("user_defined", val::object());
+    class_<Export_Math>("Math")
+        .class_function("erf", &erf)
+        .class_function("tanh", &tanh)
+        .class_function("cosh", &cosh)
+        .class_function("sinh", &sinh)
+        .class_function("brillouin", &brillouin);
+        ;
 };

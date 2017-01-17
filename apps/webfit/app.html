@@ -225,7 +225,7 @@ rect.zoom {
       var ws = JSON.stringify(source_data.w);
       var cs = d3.select("input#c0").node().value;
       var fs = d3.select("input#userdef").node().value;
-      var userfunc = eval("(function(c, x) { with(Math) return (" + fs + ") })");
+      var userfunc = eval("(function(c, x) { with(Math) with(Module.Math) return (" + fs + ") })");
       Module.user_defined.func_def = fs;
       var l = ""; //"[-Inf, -Inf, -Inf, -Inf]";
       var u = "[ Inf,  Inf,  Inf,  Inf]";
@@ -244,7 +244,7 @@ rect.zoom {
       sd[1] = x_fit.map(function(d) {
         var x_context = {x: [d.toPrecision(12)]};
         var y_fit;
-        with(c_context) with(Math) with(x_context)  { y_fit = eval(fs) };
+        with(c_context) with(Math) with(Module.Math) with(x_context)  { y_fit = eval(fs) };
         return [d, y_fit]
       });
       chart.source_data(sd);
