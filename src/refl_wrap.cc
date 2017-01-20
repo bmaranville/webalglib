@@ -69,16 +69,6 @@ val triple_wrapped_refl(
     return r_array;
 }
     
-/*
-Cr4xa(const int &N, const double D[], const double SIGMA[],
-      const int &IP,
-      const double RHO[], const double IRHO[],
-      const double RHOM[], const Cplx U1[], const Cplx U3[],
-      const double &AGUIDE, const double &KZ,
-      Cplx &YA, Cplx &YB, Cplx &YC, Cplx &YD)
-
-*/
-
 EMSCRIPTEN_BINDINGS(my_module) {
     class_<Cplx>("Cplx")
       .constructor<double, double>()

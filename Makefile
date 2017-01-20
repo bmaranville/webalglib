@@ -21,6 +21,9 @@ apps/webfit:
 refl: src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h apps/refl
 	emcc -O3 --bind -I$(SRC) $(LIB) src/reflectivity.cc src/refl_wrap.cc -o apps/refl/refl.js
 
+magrefl: src/magnetic.cc src/mag_wrap.cc src/reflcalc.h apps/refl
+	emcc -O3 --bind -I$(SRC) $(LIB) src/magnetic.cc src/mag_wrap.cc -o apps/refl/magrefl.js
+
 apps/refl:
 	mkdir -p apps
 	mkdir -p apps/refl
