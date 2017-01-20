@@ -108,7 +108,7 @@ C * Converted to subroutine from GEPORE.f
       int I,L,LP,STEP;
 
 //    variables calculating S1, S3, and exponents
-      double E0;
+      double E0, SIGMAL;
       Cplx S1L,S3L,S1LP,S3LP,ES1L,ES3L,ENS1L,ENS3L,ES1LP,ES3LP,ENS1LP,ENS3LP;
       Cplx FS1S1, FS3S1, FS1S3, FS3S3;
 
@@ -184,7 +184,8 @@ C * Converted to subroutine from GEPORE.f
         S3L = -sqrt(Cplx(PI4*(RHO[L]-RHOM[L])-E0, -PI4*(fabs(IRHO[L])+EPS)));
         S1LP = -sqrt(Cplx(PI4*(RHO[LP]+RHOM[LP])-E0, -PI4*(fabs(IRHO[LP])+EPS)));
         S3LP = -sqrt(Cplx(PI4*(RHO[LP]-RHOM[LP])-E0, -PI4*(fabs(IRHO[LP])+EPS)));
-
+        SIGMAL = SIGMA[L];
+        
         if (abs(U1[L]) <= 1.0) {
             // then Bz >= 0
             // BL and GL are zero in the fronting.
@@ -218,23 +219,23 @@ C * Converted to subroutine from GEPORE.f
         FS3S3 = S3L/S3LP;
          
         B11 = DELTA *   1.0 * (1.0 + FS1S1);
-        B12 = DELTA *   1.0 * (1.0 - FS1S1);
+        B12 = DELTA *   1.0 * (1.0 - FS1S1) * exp(2.*S1L*S1LP*SIGMAL*SIGMAL);
         B13 = DELTA *  -GLP * (1.0 + FS3S1);
-        B14 = DELTA *  -GLP * (1.0 - FS3S1);
+        B14 = DELTA *  -GLP * (1.0 - FS3S1) * exp(2.*S3L*S1LP*SIGMAL*SIGMAL);
         
-        B21 = DELTA *   1.0 * (1.0 - FS1S1);
+        B21 = DELTA *   1.0 * (1.0 - FS1S1) * exp(2.*S1L*S1LP*SIGMAL*SIGMAL);
         B22 = DELTA *   1.0 * (1.0 + FS1S1);
-        B23 = DELTA *  -GLP * (1.0 - FS3S1);
+        B23 = DELTA *  -GLP * (1.0 - FS3S1) * exp(2.*S3L*S1LP*SIGMAL*SIGMAL);
         B24 = DELTA *  -GLP * (1.0 + FS3S1);
         
         B31 = DELTA *  -BLP * (1.0 + FS1S3);
-        B32 = DELTA *  -BLP * (1.0 - FS1S3);
+        B32 = DELTA *  -BLP * (1.0 - FS1S3) * exp(2.*S1L*S3LP*SIGMAL*SIGMAL);
         B33 = DELTA *   1.0 * (1.0 + FS3S3);
-        B34 = DELTA *   1.0 * (1.0 - FS3S3);
+        B34 = DELTA *   1.0 * (1.0 - FS3S3) * exp(2.*S3L*S3LP*SIGMAL*SIGMAL);
         
-        B41 = DELTA *  -BLP * (1.0 - FS1S3);
+        B41 = DELTA *  -BLP * (1.0 - FS1S3) * exp(2.*S1L*S3LP*SIGMAL*SIGMAL);
         B42 = DELTA *  -BLP * (1.0 + FS1S3);
-        B43 = DELTA *   1.0 * (1.0 - FS3S3);
+        B43 = DELTA *   1.0 * (1.0 - FS3S3) * exp(2.*S3L*S3LP*SIGMAL*SIGMAL);
         B44 = DELTA *   1.0 * (1.0 + FS3S3);
         
         Z += D[LP];
@@ -249,8 +250,10 @@ C * Converted to subroutine from GEPORE.f
         S3L = S3LP; //
         GL = GLP;
         BL = BLP;
-        S1LP = -sqrt(Cplx(PI4*(RHO[LP]+RHOM[LP])-E0, -PI4*(fabs(IRHO[L])+EPS)));
+        S1LP = -sqrt(Cplx(PI4*(RHO[LP]+RHOM[LP])-E0, -PI4*(fabs(IRHO[LP])+EPS)));
         S3LP = -sqrt(Cplx(PI4*(RHO[LP]-RHOM[LP])-E0, -PI4*(fabs(IRHO[LP])+EPS)));
+        SIGMAL = SIGMA[L];
+        
         if (abs(U1[LP]) <= 1.0) {
             // then Bz >= 0
             BLP = U1[LP];
@@ -287,26 +290,26 @@ C * Converted to subroutine from GEPORE.f
         A11 = A22 = DBG * (1.0 + FS1S1);
         A11 *= ES1L * ENS1LP;
         A22 *= ENS1L * ES1LP;
-        A12 = A21 = DBG * (1.0 - FS1S1);
+        A12 = A21 = DBG * (1.0 - FS1S1) * exp(2.*S1L*S1LP*SIGMAL*SIGMAL);
         A12 *= ENS1L * ENS1LP;
         A21 *= ES1L  * ES1LP;
         A13 = A24 = DGG * (1.0 + FS3S1);
         A13 *= ES3L  * ENS1LP;
         A24 *= ENS3L * ES1LP;
-        A14 = A23 = DGG * (1.0 - FS3S1);
+        A14 = A23 = DGG * (1.0 - FS3S1) * exp(2.*S3L*S1LP*SIGMAL*SIGMAL);
         A14 *= ENS3L * ENS1LP;
         A23 *= ES3L  * ES1LP;
         
         A31 = A42 = DBB * (1.0 + FS1S3);
         A31 *= ES1L * ENS3LP;
         A42 *= ENS1L * ES3LP;
-        A32 = A41 = DBB * (1.0 - FS1S3);
+        A32 = A41 = DBB * (1.0 - FS1S3) * exp(2.*S1L*S3LP*SIGMAL*SIGMAL);
         A32 *= ENS1L * ENS3LP;
         A41 *= ES1L  * ES3LP;
         A33 = A44 = DGB * (1.0 + FS3S3);
         A33 *= ES3L * ENS3LP;
         A44 *= ENS3L * ES3LP;
-        A34 = A43 = DGB * (1.0 - FS3S3);
+        A34 = A43 = DGB * (1.0 - FS3S3) * exp(2.*S3L*S3LP*SIGMAL*SIGMAL);
         A34 *= ENS3L * ENS3LP;
         A43 *= ES3L * ES3LP;
 
@@ -347,7 +350,7 @@ C * Converted to subroutine from GEPORE.f
         B24=C2;
         B34=C3;
         B44=C4;
-
+        
         Z += D[LP];
         L = LP;
       }
