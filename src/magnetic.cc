@@ -10,6 +10,61 @@
 
 #define MINIMAL_RHO_M 1e-2  // in units of 1e-6/A^2
 const double EPS = std::numeric_limits<double>::epsilon();
+const double B2SLD = 2.31604654;  // Scattering factor for B field 1e-6
+
+/*
+extern "C" void
+calculate_U1_U3(const double &H, 
+                const double &rhoM, 
+                const double &thetaM, 
+                const double &Aguide, 
+                Cplx &U1, Cplx &U3
+) 
+{
+    // thetaM should be in radians,
+    // Aguide in degrees.
+    double phiH = (Aguide - 270.0)*M_PI/180.0;
+    double AG = Aguide*M_PI/180.0; // Aguide in radians
+    double thetaH = M_PI_2; // by convention, H is in y-z plane so theta = pi/2
+    
+    double sld_h = B2SLD * H;
+    double sld_m_x = rhoM * cos(thetaM);
+    double sld_m_y = rhoM * sin(thetaM);
+    double sld_m_z = 0.0; // by Maxwell's equations, H_demag = mz so we'll just cancel it here
+    // The purpose of AGUIDE is to rotate the z-axis of the sample coordinate
+    // system so that it is aligned with the quantization axis z, defined to be
+    // the direction of the magnetic field outside the sample.
+
+    double new_my = sld_m_z * sin(AG) + sld_m_y * cos(AG);
+    double new_mz = sld_m_z * cos(AG) - sld_m_y * sin(AG);
+    sld_m_y = new_my;
+    sld_m_z = new_mz;
+    double sld_h_x = 0.0;
+    double sld_h_y = 0.0;
+    double sld_h_z = sld_h;
+    // Then, don't rotate the transfer matrix!!
+    //double Aguide = 0.0;
+    
+    double sld_b_x = sld_h_x + sld_m_x;
+    double sld_b_y = sld_h_y + sld_m_y;
+    double sld_b_z = sld_h_z + sld_m_z;
+
+    // avoid divide-by-zero:
+    sld_b_x += EPS*(sld_b_x==0);
+    sld_b_y += EPS*(sld_b_y==0);
+
+    // add epsilon to y, to avoid divide by zero errors?
+    double sld_b = sqrt(pow(sld_b_x,2) + pow(sld_b_y,2) + pow(sld_b_z,2));
+    Cplx u1_num( sld_b + sld_b_x - sld_b_z,  sld_b_y );
+    Cplx u1_den( sld_b + sld_b_x + sld_b_z, -sld_b_y );
+    Cplx u3_num(-sld_b + sld_b_x - sld_b_z,  sld_b_y );
+    Cplx u3_den(-sld_b + sld_b_x + sld_b_z, -sld_b_y );
+    
+    U1 = u1_num / u1_den;
+    U3 = u3_num / u3_den;
+}
+*/
+
 
 extern "C" void
 Cr4xa(const int &N, const double D[], const double SIGMA[],
