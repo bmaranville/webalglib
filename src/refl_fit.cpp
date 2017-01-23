@@ -67,7 +67,7 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     int offset = 0;
 
     const double *D     = &c[num_rows * offset++];
-    const double *SIGMA = &c[num_rows * offset++];
+    const double *SIGMA = &c[num_rows * offset++ + 1]; // skip the first sigma
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
@@ -105,6 +105,7 @@ string fit_1d(
     const string ys,
     const string ws,
     const string cs,
+    const string ss,
     const string lower_bound,
     const string upper_bound,
     fptr func,
@@ -115,7 +116,8 @@ string fit_1d(
     real_1d_array y = ys.c_str();
     real_1d_array w = ws.c_str();
     real_1d_array c = cs.c_str();
-    
+    real_1d_array s = ss.c_str();
+        
     double epsf = 0;
     double epsx = 0.000001;
     ae_int_t maxits = 0;
@@ -130,6 +132,7 @@ string fit_1d(
         real_1d_array bndu = upper_bound.c_str();
         lsfitsetbc(state, bndl, bndu);
     }
+    alglib::lsfitsetscale(state, s);
     lsfitsetcond(state, epsf, epsx, maxits);
     alglib::lsfitfit(state, func, NULL, option_ptr);
     lsfitresults(state, info, c, rep);
@@ -138,14 +141,14 @@ string fit_1d(
     eval_func(func, c, x, y_fit, option_ptr);
     
     string output = "{\n";
-    output += "  \"c\": " + c.tostring(6) + ",\n";
-    output += "  \"c_err\": " + rep.errpar.tostring(6) + ",\n";
-    output += "  \"iterations\": " + std::to_string(rep.iterationscount) + ",\n";
-    output += "  \"rmserror\": " + std::to_string(rep.rmserror) + ",\n";
-    output += "  \"wrmserror\": " + std::to_string(rep.wrmserror) + "\n";
+    output += "  \"c\": " + c.tostring(6);
+    output += ",\n  \"c_err\": " + rep.errpar.tostring(6);
+    output += ",\n  \"iterations\": " + std::to_string(rep.iterationscount);
+    output += ",\n  \"rmserror\": " + std::to_string(rep.rmserror);
+    output += ",\n  \"wrmserror\": " + std::to_string(rep.wrmserror);
     
-    //output += "  \"y_fit\": " + y_fit.tostring(6) + "\n";
-    output += "}"; 
+    output += ",\n  \"y_fit\": " + y_fit.tostring(6);
+    output += "\n}"; 
     return output;
 }
 
@@ -154,11 +157,12 @@ string fit_refl(
     const string ys,
     const string ws,
     const string cs,
+    const string ss,
     const string lower_bound,
     const string upper_bound
 )
 {
-    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_refl);
+    return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_refl);
 }
 
 /*
@@ -192,6 +196,7 @@ string fit_user_defined(
     const string ys,
     const string ws,
     const string cs,
+    const string ss,
     const string lower_bound,
     const string upper_bound,
     emscripten::val user_func
@@ -199,7 +204,7 @@ string fit_user_defined(
 {
     val::module_property("user_defined").set("compiled_function", user_func);
     
-    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_user_defined);
+    return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_user_defined);
 }
 
 struct Export_Math {

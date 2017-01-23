@@ -18,6 +18,8 @@ refl(const int layers,
      Cplx& R)
 {
   const Cplx J(0,1);
+  //printf("%.5f,%.5f,%.5f\n", depth[0], sigma[0], rho[0]);
+  //printf("%.5f,%.5f,%.5f\n", depth[1], sigma[1], rho[1]);
 
   // Check that Q is not too close to zero.
   // For negative Q, reverse the layers.
