@@ -12,12 +12,11 @@
 const double EPS = std::numeric_limits<double>::epsilon();
 const double B2SLD = 2.31604654;  // Scattering factor for B field 1e-6
 
-/*
 extern "C" void
-calculate_U1_U3(const double &H, 
-                const double &rhoM, 
-                const double &thetaM, 
-                const double &Aguide, 
+calculate_U1_U3(const double H, 
+                const double rhoM, 
+                const double thetaM, 
+                const double Aguide, 
                 Cplx &U1, Cplx &U3
 ) 
 {
@@ -63,8 +62,6 @@ calculate_U1_U3(const double &H,
     U1 = u1_num / u1_den;
     U3 = u3_num / u3_den;
 }
-*/
-
 
 extern "C" void
 Cr4xa(const int &N, const double D[], const double SIGMA[],

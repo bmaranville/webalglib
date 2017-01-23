@@ -3,7 +3,7 @@ SRC=alglib_cpp/src
 LIBSRC=$(wildcard $(SRC)/*.cpp)
 APP=$(wildcard src/*.cpp)
 
-all: $(LIB) webfit refl
+all: $(LIB) webfit refl magrefl
 
 $(LIB): $(LIBSRC) alglib_cpp/lib
 	emcc -O3 -I$(SRC) $(LIBSRC) -o $(LIB)
@@ -23,6 +23,9 @@ refl: src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h apps/refl
 
 magrefl: src/magnetic.cc src/mag_wrap.cc src/reflcalc.h apps/refl
 	emcc -O3 --bind -I$(SRC) $(LIB) src/magnetic.cc src/mag_wrap.cc -o apps/refl/magrefl.js
+	
+refl_fit: src/reflectivity.cc src/magnetic.cc src/refl_fit.cpp src/reflcalc.h apps/refl
+	emcc -O3 --bind -I$(SRC) $(LIB) src/magnetic.cc src/reflectivity.cc src/refl_fit.cpp -o apps/refl/refl_fit.js
 
 apps/refl:
 	mkdir -p apps

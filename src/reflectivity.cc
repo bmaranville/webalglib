@@ -8,7 +8,7 @@
 #include "reflcalc.h"
 
 // Abeles matrix reflectivity calculation
-static void
+extern "C" void
 refl(const int layers,
      const double kz,
      const double depth[],

@@ -114,7 +114,11 @@ Q of a given step size in order to reach 0.001 on a gaussian of width dQ
     extern "C" {
 #endif
 
-
+void
+refl(const int layers, const double kz, const double depth[],
+     const double sigma[], const double rho[], const double irho[],
+     Cplx& R);
+     
 void
 reflectivity_amplitude(const int layers,
                        const double d[], const double sigma[],
@@ -122,6 +126,14 @@ reflectivity_amplitude(const int layers,
                        const int points,
                        const double kz[], const int rho_offset[],
                        Cplx r[]);
+
+void
+Cr4xa(const int &N, const double D[], const double SIGMA[],
+      const int &IP,
+      const double RHO[], const double IRHO[],
+      const double RHOM[], const Cplx U1[], const Cplx U3[],
+      const double &AGUIDE, const double &KZ,
+      Cplx &YA, Cplx &YB, Cplx &YC, Cplx &YD);
 
 void
 magnetic_amplitude(const int layers,
@@ -153,6 +165,9 @@ void
 convolve_sampled(size_t Nin, const double xin[], const double yin[],
          size_t Np, const double xp[], const double yp[],
          size_t N, const double x[], const double dx[], double y[]);
+         
+void calculate_U1_U3(const double H, const double rhoM, const double thetaM, 
+         const double Aguide, Cplx &U1, Cplx &U3); 
 
 #ifdef __cplusplus
 }
