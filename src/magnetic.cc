@@ -20,15 +20,16 @@ calculate_U1_U3(const double H,
                 Cplx &U1, Cplx &U3
 ) 
 {
-    // thetaM should be in radians,
+    // thetaM should be in PI radians,
     // Aguide in degrees.
+    double thetaM_rad = thetaM * M_PI;
     double phiH = (Aguide - 270.0)*M_PI/180.0;
     double AG = Aguide*M_PI/180.0; // Aguide in radians
     double thetaH = M_PI_2; // by convention, H is in y-z plane so theta = pi/2
     
     double sld_h = B2SLD * H;
-    double sld_m_x = rhoM * cos(thetaM);
-    double sld_m_y = rhoM * sin(thetaM);
+    double sld_m_x = rhoM * cos(thetaM_rad);
+    double sld_m_y = rhoM * sin(thetaM_rad);
     double sld_m_z = 0.0; // by Maxwell's equations, H_demag = mz so we'll just cancel it here
     // The purpose of AGUIDE is to rotate the z-axis of the sample coordinate
     // system so that it is aligned with the quantization axis z, defined to be

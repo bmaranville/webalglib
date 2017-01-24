@@ -17,46 +17,44 @@ using namespace alglib;
 
 typedef void (*fptr)(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr);
 
-/*
+
 void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) {
     // the sld table is broken down into c parameters, with columns:
     // depth, sigma, rho, irho, rhoM and thetaM plus double-precision values for H and AGUIDE
     // so c should always have size (6*n) + 2
-    const int num_rows = ((int)c.length() - 2) / 6;
+    const int num_rows = (c.length() - 2) / 6;
     int offset = 0;
 
-    const double D[num_rows] = &c[num_rows * offset++];
-    const double SIGMA[num_rows] = &c[num_rows * offset++];
-    const double RHO[num_rows] = &c[num_rows * offset++];
-    const double IRHO[num_rows] = &c[num_rows * offset++];
-    const double RHOM[num_rows] = &c[num_rows * offset++];
-    const double thetaM[num_rows] = &c[num_rows * offset];
+    const double *D = &c[num_rows * offset++];
+    const double *SIGMA = &c[num_rows * offset++ + 1];
+    const double *RHO = &c[num_rows * offset++];
+    const double *IRHO = &c[num_rows * offset++];
+    const double *RHOM = &c[num_rows * offset++];
+    const double *thetaM = &c[num_rows * offset];
     
     const double H = c[num_rows*offset + 1];
     const double AGUIDE = c[num_rows*offset + 2];
     
-    Cplx U1[num_rows];
-    Cplx U3[num_rows];
-    
+    vector<Cplx> U1(num_rows);
+    vector<Cplx> U3(num_rows);    
     
     for (int i=0; i<num_rows; i++) {
-        calculate_U1_U3(H, RHOM[i], thetaM[i], AGUIDE, U1, U3);
+        calculate_U1_U3(H, RHOM[i], thetaM[i], AGUIDE, U1[i], U3[i]);
     }
     // done with conversion : do calculation
     
-    const int cross_section = (int) round(x[1]);
+    int cross_section = std::round(x[1]);
     const int IP = (cross_section < 2) ? 1 : -1;
-    const double KZ[1] = {x[0]};
+    const double KZ = x[0];
     
     // cross-section order:  [++, +-, -+, --]
     Cplx R[4];
     
     // use AGUIDE = 0 after calculating U1, U3;
-    Cr4xa(num_rows, D, SIGMA, IP, RHO, IRHO, RHOM, U1, U3, 0, KZ, R[0], R[1], R[2], R[3]);
+    Cr4xa(num_rows, D, SIGMA, IP, RHO, IRHO, RHOM, &U1[0], &U3[0], 0, KZ, R[0], R[1], R[2], R[3]);
     
     func = norm(R[cross_section]);
 }
-*/
 
 void function_refl(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) {
     // the sld table is broken down into c parameters, with columns:
@@ -165,19 +163,19 @@ string fit_refl(
     return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_refl);
 }
 
-/*
+
 string fit_magrefl(
     const string xs,
     const string ys,
     const string ws,
     const string cs,
+    const string ss,
     const string lower_bound,
     const string upper_bound
 )
 {
-    return fit_1d(xs, ys, ws, cs, lower_bound, upper_bound, function_magrefl);
+    return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_magrefl);
 }
-*/
 
 void function_user_defined(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr) 
 {   
@@ -220,7 +218,7 @@ double brillouin( double J, double x ) {
 
 EMSCRIPTEN_BINDINGS(fit_refl_module) {
     emscripten::function("fit_refl", &fit_refl);
-    //emscripten::function("fit_magrefl", &fit_magrefl);
+    emscripten::function("fit_magrefl", &fit_magrefl);
     emscripten::function("fit_user_defined", &fit_user_defined);
     emscripten::constant("user_defined", val::object());
     class_<Export_Math>("Math")
