@@ -39,11 +39,11 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
     vector<Cplx> U3(num_rows);    
     
     for (int i=0; i<num_rows; i++) {
-        calculate_U1_U3(H, RHOM[i], thetaM[i], AGUIDE, U1[i], U3[i]);
+        calculate_U1_U3(H, RHOM[i], thetaM[i] * M_PI, AGUIDE, U1[i], U3[i]);
     }
     // done with conversion : do calculation
     
-    int cross_section = std::round(x[1]);
+    const int cross_section = std::round(x[1]);
     const int IP = (cross_section < 2) ? 1 : -1;
     const double KZ = x[0];
     
