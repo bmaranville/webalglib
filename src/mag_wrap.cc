@@ -88,7 +88,7 @@ val less_wrapped_magrefl(
     const std::vector<double> sigma_d = vecFromJSArray<double>(sigma);
     const std::vector<double> rho_d = vecFromJSArray<double>(rho);
     const std::vector<double> irho_d = vecFromJSArray<double>(irho);
-    const std::vector<double> rhoM_d = vecFromJSArray<double>(rhoM);
+          std::vector<double> rhoM_d = vecFromJSArray<double>(rhoM);
     const std::vector<double> thetaM_d = vecFromJSArray<double>(thetaM);
     const std::vector<double> kz_d = vecFromJSArray<double>(kz);
     
@@ -97,6 +97,7 @@ val less_wrapped_magrefl(
                 
     for (size_t i=0; i<rhoM_d.size(); i++) {
         calculate_U1_U3(H, rhoM_d[i], thetaM_d[i], Aguide, u1_c[i], u3_c[i]);
+        rhoM_d[i] = fabs(rhoM_d[i]);
     }
     
     std::vector<Cplx> Ra(kz_d.size());
