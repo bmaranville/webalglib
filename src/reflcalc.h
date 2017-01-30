@@ -166,7 +166,7 @@ convolve_sampled(size_t Nin, const double xin[], const double yin[],
          size_t Np, const double xp[], const double yp[],
          size_t N, const double x[], const double dx[], double y[]);
          
-void calculate_U1_U3(const double H, const double rhoM, const double thetaM, 
+void calculate_U1_U3(const double H, double &rhoM, const double thetaM, 
          const double Aguide, Cplx &U1, Cplx &U3); 
 
 #ifdef __cplusplus
