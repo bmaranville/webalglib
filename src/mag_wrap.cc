@@ -105,7 +105,7 @@ val less_wrapped_magrefl(
     std::vector<Cplx> Rc(kz_d.size());
     std::vector<Cplx> Rd(kz_d.size());
     
-    printf("rhoM[0]: %.4f\n", rhoM_d[0]);
+    //printf("rhoM[0]: %.4f\n", rhoM_d[0]);
     magnetic_amplitude(depth_d.size(), &depth_d[0], &sigma_d[0], &rho_d[0], &irho_d[0], &rhoM_d[0], &u1_c[0], &u3_c[0], Aguide, kz_d.size(), &kz_d[0], 0, &Ra[0], &Rb[0], &Rc[0], &Rd[0]);
     
     val output = val::object();
