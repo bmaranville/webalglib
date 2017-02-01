@@ -290,9 +290,12 @@ circle.corner {
       chart.update();
     });
     
+    function clear_peaks() {
+      center_points.state.points = []; chart.update();
+    }
     
     d3.select("button#reset_zoom").on('click', function() { chart.resetzoom(); });
-    d3.select("button#clear_peaks").on('click', function() { center_points.state.points = []; chart.update(); });
+    d3.select("button#clear_peaks").on('click', function() { clear_peaks(); });
     
     d3.select("button#run_multigauss").on('click', function() { 
       var x = source_data.x;
@@ -339,6 +342,7 @@ circle.corner {
     function import_data() {
       var file_input = document.getElementById('upload_file');
       var file = file_input.files[0]; // only one file allowed
+      clear_peaks();
       var result = null;
       file_input.value = "";
       var reader = new FileReader();
