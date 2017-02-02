@@ -208,10 +208,10 @@ EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::function("fit_user_defined", &fit_user_defined);
     emscripten::constant("user_defined", val::object());
     class_<Export_Math>("Math")
-        .class_function("erf", &erf)
-        .class_function("tanh", &tanh)
-        .class_function("cosh", &cosh)
-        .class_function("sinh", &sinh)
+        .class_function("erf",  static_cast<double(*)(double)>(erf))
+        .class_function("tanh", static_cast<double(*)(double)>(tanh))
+        .class_function("cosh", static_cast<double(*)(double)>(cosh))
+        .class_function("sinh", static_cast<double(*)(double)>(sinh))
         .class_function("brillouin", &brillouin);
         ;
 };

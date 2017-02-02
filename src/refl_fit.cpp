@@ -24,16 +24,18 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
     // so c should always have size (6*n) + 2
     const int num_rows = (c.length() - 2) / 6;
     int offset = 0;
-
-    const double *D = &c[num_rows * offset++];
-    const double *SIGMA = &c[num_rows * offset++ + 1];
-    const double *RHO = &c[num_rows * offset++];
-    const double *IRHO = &c[num_rows * offset++];
-    const double *RHOM = &c[num_rows * offset++];
-    const double *thetaM = &c[num_rows * offset];
     
-    const double H = c[num_rows*offset + 1];
-    const double AGUIDE = c[num_rows*offset + 2];
+    real_1d_array cc = c;
+
+    const double *D = &cc[num_rows * offset++];
+    const double *SIGMA = &cc[num_rows * offset++ + 1];
+    const double *RHO = &cc[num_rows * offset++];
+    const double *IRHO = &cc[num_rows * offset++];
+          double *RHOM = &cc[num_rows * offset++];
+    const double *thetaM = &cc[num_rows * offset];
+    
+    const double H = cc[num_rows*offset + 1];
+    const double AGUIDE = cc[num_rows*offset + 2];
     
     vector<Cplx> U1(num_rows);
     vector<Cplx> U3(num_rows);    
@@ -222,10 +224,10 @@ EMSCRIPTEN_BINDINGS(fit_refl_module) {
     emscripten::function("fit_user_defined", &fit_user_defined);
     emscripten::constant("user_defined", val::object());
     class_<Export_Math>("Math")
-        .class_function("erf", &erf)
-        .class_function("tanh", &tanh)
-        .class_function("cosh", &cosh)
-        .class_function("sinh", &sinh)
-        .class_function("brillouin", &brillouin);
+        .class_function("erf",  static_cast<double(*)(double)>(erf))
+        .class_function("tanh", static_cast<double(*)(double)>(tanh))
+        .class_function("cosh", static_cast<double(*)(double)>(cosh))
+        .class_function("sinh", static_cast<double(*)(double)>(sinh))
+        .class_function("brillouin", &brillouin)
         ;
 };
