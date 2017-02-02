@@ -1,147 +1,10 @@
 <html>
   <title>Levenberg-Marquardt weighted fitting</title>
+  <link rel="stylesheet" href="app.css" />
   <script src="app.js"></script>
   <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <link rel="stylesheet" src="//www.ncnr.nist.gov/instruments/magik/calculators/css/calcR.css" />
   <script src="//www.ncnr.nist.gov/instruments/magik/d3-science/lib/jquery-extend.js"></script>
   <script src="//www.ncnr.nist.gov/instruments/magik/d3-science/lib/xy-chart.js" charset="utf-8"></script>
-  <style>
-    
-html, body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  margin: 0px;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  
-  font-family: sans !important;
-}
-
-header, footer {
-  min-height: 2em;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-}
-
-footer {
-  width: 100%;
-  text-align: center;
-}
-
-main.content {
-  flex: 1;
-}
-
-svg,
-canvas {
-  position: absolute;
-  image-rendering: optimizeSpeed;
-  image-rendering: crisp-edges;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: optimize-contrast;
-  -ms-interpolation-mode: nearest-neighbor;
-}
-
-.axis-label {
-  font-size: 18px;
-}
-
-.axis .tick text {
-  font-size: 14px;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-
-.grid path {
-      stroke-width: 1;
-      fill: none;
-}
-.grid .tick {
-    stroke: lightgrey;
-    opacity: 0.7;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
-    user-select: none; 
-    -webkit-user-select: none; 
-    -moz-user-select: none;
-}
- 
-.axis path {
-    fill: none;
-    stroke: #bbb;
-    shape-rendering: crispEdges;
-}
- 
-.axis text {
-    fill: #555;
-}
- 
-.axis line {	
-    stroke: #e7e7e7;
-    shape-rendering: crispEdges;
-}
- 
-.axis .axis-label {
-    user-select: none; 
-    -webkit-user-select: none; 
-    -moz-user-select: none;
-}
-
-.legend, .tick {
-    user-select: none; 
-    -webkit-user-select: none; 
-    -moz-user-select: none;
-}
- 
-.line {
-    fill: none;
-    stroke-width: 1.5px;
-}
-
-.highlight {
-    stroke-width: 4.5px;
-}
- 
-.dot {
-    /* consider the stroke-with the mouse detect radius? */
-    stroke: transparent;
-    stroke-width: 10px;  
-    cursor: pointer;
-}
- 
-.dot:hover {
-    stroke: rgba(68, 127, 255, 0.3);
-}
-
-.centerline {
-    stroke: orange;
-    stroke-dasharray: 10,2;
-}
-
-rect {
-  fill: none;
-  user-select: none; 
-  -webkit-user-select: none; 
-  -moz-user-select: none;
-}
-
-rect.zoom {
-  stroke: steelblue;
-  fill-opacity: 0.5;
-}
-
-circle.corner {
-  opacity: 0.5;
-}
-</style>
 <script>
   ax = "[[-1],[-0.8],[-0.6],[-0.4],[-0.2],[0],[0.2],[0.4],[0.6],[0.8],[1.0]]";
   ay = "[0.223130, 0.382893, 0.582748, 0.786628, 0.941765, 1.000000, 0.941765, 0.786628, 0.582748, 0.382893, 0.223130]";
@@ -321,12 +184,6 @@ circle.corner {
     }
   }   
 </script>
-<style>
-  div.plotdiv {
-      width: 800;
-      height: 650;
-  }
-</style>
 <body>
   <header>
     <label>Upload tab-delimited data (x y {optional dy}) 
