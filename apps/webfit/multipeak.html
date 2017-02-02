@@ -9,21 +9,29 @@
   <style>
 
 html, body {
-  position: relative;
-  /*height: 100%;*/
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  
   font-family: sans !important;
 }
 
-div.footer {
-  position: absolute;
+header, footer {
+  min-height: 2em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+footer {
   width: 100%;
-  bottom: 0px;
   text-align: center;
 }
 
-#plot1 {
-    width: 100%;
-    height: 75%;;
+main.content {
+  flex: 1;
 }
 
 svg,
@@ -406,24 +414,26 @@ circle.corner {
   }
 </style>
 <body>
-  <div id="top">
+  <header>
     <label>Upload tab-delimited data (x y {optional dy}) 
       <input type="file" multiple="false" id="upload_file" />
     </label>
-  </div>
-  <div id="plot" class="plotdiv"></div>
-  <div id="results" class="results">
-    <button id="reset_zoom">Reset zoom</button>
-    <button id="clear_peaks">Clear peaks</button>(double-click on graph to add/remove peaks)
-    <button id="run_multigauss">Multigauss fit</button>
-    <br>
-    <pre id="result_text"></pre>
-  </div>
-  <div id="bottom" class="footer">
+  </header>
+  <main id="content" class="content">
+    <div id="plot" class="plotdiv"></div>
+    <div id="results" class="results">
+      <button id="reset_zoom">Reset zoom</button>
+      <button id="clear_peaks">Clear peaks</button>(double-click on graph to add/remove peaks)
+      <button id="run_multigauss">Multigauss fit</button>
+      <br>
+      <pre id="result_text"></pre>
+    </div>
+  </main>
+  <footer>
   Built with <a href="http://www.alglib.net/">ALGLIB</a> 
     and <a href="https://kripken.github.io/emscripten-site/">emscripten</a>
     and <a href="https://d3js.org/">d3.js</a>; source available on 
     <a href="https://github.com/bmaranville/webalglib">github</a>
-  </div>
+  </footer>
 </body>
 </html>

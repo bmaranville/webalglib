@@ -6,23 +6,31 @@
   <script src="//www.ncnr.nist.gov/instruments/magik/d3-science/lib/jquery-extend.js"></script>
   <script src="//www.ncnr.nist.gov/instruments/magik/d3-science/lib/xy-chart.js" charset="utf-8"></script>
   <style>
-
+    
 html, body {
-  position: relative;
-  /*height: 100%;*/
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  
   font-family: sans !important;
 }
 
-div.footer {
-  position: absolute;
+header, footer {
+  min-height: 2em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+footer {
   width: 100%;
-  bottom: 0px;
   text-align: center;
 }
 
-#plot1 {
-    width: 100%;
-    height: 75%;;
+main.content {
+  flex: 1;
 }
 
 svg,
@@ -128,6 +136,10 @@ rect {
 rect.zoom {
   stroke: steelblue;
   fill-opacity: 0.5;
+}
+
+circle.corner {
+  opacity: 0.5;
 }
 </style>
 <script>
@@ -316,29 +328,30 @@ rect.zoom {
   }
 </style>
 <body>
-  <div id="top">
+  <header>
     <label>Upload tab-delimited data (x y {optional dy}) 
       <input type="file" multiple="false" id="upload_file" />
     </label>
-  </div>
-  <div id="plot" class="plotdiv"></div>
-  <div id="results" class="results">
-    <button id="run_gaussian">Gauss fit</button>
-    <label>Starting values (A, x0, sigma, y0):
-      <input type="text" id="c0" value="[1, 1, 1, 1]" />
-    </label>
-    <br>
-    <button id="run_userdef">User defined fit</button>
-    <label>Function definition: 
-      <input type="text" id="userdef" value="c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
-    </label>
-    <pre id="result_text"></pre>
-  </div>
-  <div id="bottom" class="footer">
-  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
+  </header>
+  <main class="content">
+    <div id="plot" class="plotdiv"></div>
+    <div id="results" class="results">
+      <button id="run_gaussian">Gauss fit</button>
+      <label>Starting values (A, x0, sigma, y0):
+        <input type="text" id="c0" value="[1, 1, 1, 1]" />
+      </label>
+      <br>
+      <button id="run_userdef">User defined fit</button>
+      <label>Function definition: 
+        <input type="text" id="userdef" value="c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]" size="75" />
+      </label>
+      <pre id="result_text"></pre>
+    </div>
+  </main>
+  <footer>  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
     and <a href="https://kripken.github.io/emscripten-site/">emscripten</a>
     and <a href="https://d3js.org/">d3.js</a>; source available on 
     <a href="https://github.com/bmaranville/webalglib">github</a>
-  </div>
+  </footer>
 </body>
 </html>
