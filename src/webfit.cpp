@@ -1,7 +1,3 @@
-#include "stdafx.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include "interpolation.h"
 #include <emscripten/bind.h>
 #include <emscripten.h>
@@ -9,9 +5,14 @@
 using std::string;
 using std::vector;
 using emscripten::val;
-using namespace emscripten;
+//using namespace emscripten;
 
-using namespace alglib;
+using alglib::real_1d_array;
+using alglib::real_2d_array;
+using alglib::ae_int_t;
+using alglib::lsfitstate;
+using alglib::lsfitreport;
+//using namespace alglib;
 
 typedef void (*fptr)(const real_1d_array &c, const real_1d_array &x, double &func, void *ptr);
 
@@ -207,7 +208,7 @@ EMSCRIPTEN_BINDINGS(fit_exp_module) {
     emscripten::function("fit_gaussian", &fit_gaussian);
     emscripten::function("fit_user_defined", &fit_user_defined);
     emscripten::constant("user_defined", val::object());
-    class_<Export_Math>("Math")
+    emscripten::class_<Export_Math>("Math")
         .class_function("erf",  static_cast<double(*)(double)>(erf))
         .class_function("tanh", static_cast<double(*)(double)>(tanh))
         .class_function("cosh", static_cast<double(*)(double)>(cosh))

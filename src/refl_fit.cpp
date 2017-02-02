@@ -1,8 +1,4 @@
 #include "reflcalc.h"
-#include "stdafx.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include "interpolation.h"
 #include <emscripten/bind.h>
 #include <emscripten.h>
