@@ -15,8 +15,8 @@ all: $(ALGLIB) $(WEBFIT) $(REFL) $(MAGREFL) $(REFLFIT)
 clean:
 	rm -f $(ALGLIB) $(WEBFIT) $(REFL) $(MAGREFL) $(REFLFIT)
 
-$(ALGLIB): $(LIBSRC) 
-  mkdir -p alglib_cpp/lib
+$(ALGLIB): $(LIBSRC)
+	mkdir -p alglib_cpp/lib
 	$(EMCC) -I$(SRC) $(LIBSRC) -o $(ALGLIB)
 
 $(WEBFIT): src/webfit.cpp
@@ -30,8 +30,8 @@ $(REFL): src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h apps/refl/
 $(MAGREFL): src/magnetic.cc src/mag_wrap.cc src/reflcalc.h apps/refl
 	mkdir -p apps/refl
 	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/mag_wrap.cc -o apps/refl/magrefl.js
-	
+
 $(REFLFIT): src/reflectivity.cc src/magnetic.cc src/refl_fit.cpp src/reflcalc.h apps/refl
 	mkdir -p apps/refl
 	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/refl_fit.cpp -o apps/refl/refl_fit.js
-	
+
