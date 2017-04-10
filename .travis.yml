@@ -41,7 +41,7 @@ script:
   # the emscripten-libs-asmjs package. This speeds up the build significantly.
   #- /alpine/enter-chroot $USER
   #    EM_USE_GLOBAL_CACHE=1 emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
-  - git clone git@github.com:bmaranville/webalglib.git deploy
+  - git clone https://github.com/bmaranville/webalglib.git deploy
   - cd deploy
   - git checkout gh-pages
   - git checkout $SOURCE_BRANCH -- src
