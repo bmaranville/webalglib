@@ -51,6 +51,6 @@ before_deploy:
 deploy:
   provider: script
   skip_cleanup: true
-  script: git commit . -m "build from Travis-CI"; git push origin gh-pages
+  script: git add apps; git commit -am "build from Travis-CI"; git push origin gh-pages
   on:
     branch: master
