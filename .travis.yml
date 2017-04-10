@@ -1,7 +1,7 @@
 # Note: It seems that cache doesn't work when "sudo: required". :(
 sudo: required
 dist: trusty
-language: node_js
+#language: node_js
 
 # safelist
 branches:
@@ -56,11 +56,7 @@ script:
 deploy:
   provider: script
   skip_cleanup: true
-  script:
-    - git add apps
-    - git commit -m "Deploy to GitHub Pages"
-    - git commit -am "some source files changed in Github Pages"
-    - git push git@github.com:bmaranville/webalglib.git gh-pages
-    # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
+  script: git add apps; git commit -m "Deploy to GitHub Pages"; git commit -am "some source files changed in Github Pages"; git push git@github.com:bmaranville/webalglib.git gh-pages
+  # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
   on:
     branch: master
