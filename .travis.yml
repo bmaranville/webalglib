@@ -13,9 +13,6 @@ env:
   global:
     - PROJ_NAME=webalglib
 
-before_install:
-  openssl aes-256-cbc -K $encrypted_18fb29e1166b_key -iv $encrypted_18fb29e1166b_iv -in webalglib_deploy.enc -out /tmp/webalglib_deploy -d
-
 install:
   # Download and verify alpine-chroot-install script.
   - wget https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/v0.2.0/alpine-chroot-install
