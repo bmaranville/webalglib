@@ -57,9 +57,8 @@ deploy:
   provider: script
   skip_cleanup: true
   script:
-    - SHA=`git rev-parse --verify HEAD`
-    - git add .
-    - git commit -m "Deploy to GitHub Pages: ${SHA}"
+    - git add apps
+    - git commit -am "Deploy to GitHub Pages"
     - git push git@github.com:bmaranville/webalglib.git gh-pages
     # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
   on:
