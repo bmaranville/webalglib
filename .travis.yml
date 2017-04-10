@@ -28,29 +28,39 @@ install:
       -p emscripten -p emscripten-libs-asmjs -p closure-compiler
       -p make
   
-
+before_script:
+  - openssl aes-256-cbc -K $encrypted_18fb29e1166b_key -iv $encrypted_18fb29e1166b_iv -in webalglib_deploy.enc -out /tmp/webalglib_deploy -d
+  - eval "$(ssh-agent -s)"
+  - chmod 600 /tmp/webalglib_deploy
+  - ssh-add /tmp/webalglib_deploy
+  
 script:
-  - mkdir -p target/debug target/release
+  #- mkdir -p target/debug target/release
   # Compile hello_world.c into JavaScript inside the Alpine chroot.
   # EM_USE_GLOBAL_CACHE=1 tells emscripten to use precompiled libraries from
   # the emscripten-libs-asmjs package. This speeds up the build significantly.
   #- /alpine/enter-chroot $USER
   #    EM_USE_GLOBAL_CACHE=1 emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
+  - git clone git@github.com:bmaranville/webalglib.git deploy
+  - cd deploy
+  - git checkout gh-pages
+  - git checkout $SOURCE_BRANCH -- src
   - /alpine/enter-chroot $USER
       EM_USE_GLOBAL_CACHE=1 make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
   #- node target/debug/$PROJ_NAME.js
   #- node target/release/$PROJ_NAME.js
 
-before_deploy:
-  - openssl aes-256-cbc -K $encrypted_18fb29e1166b_key -iv $encrypted_18fb29e1166b_iv -in webalglib_deploy.enc -out /tmp/webalglib_deploy -d
-  - eval "$(ssh-agent -s)"
-  - chmod 600 /tmp/webalglib_deploy
-  - ssh-add /tmp/webalglib_deploy
+
 
 deploy:
   provider: script
   skip_cleanup: true
-  script: git fetch --all; git rebase master gh-pages; git add apps; git commit -m "adding build itemst"; git push origin gh-pages
+  script:
+    - SHA=`git rev-parse --verify HEAD`
+    - git add .
+    - git commit -m "Deploy to GitHub Pages: ${SHA}"
+    - git push git@github.com:bmaranville/webalglib.git gh-pages
+    # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
   on:
     branch: master
