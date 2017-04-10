@@ -4,7 +4,7 @@ dist: trusty
 language: node_js
 env:
   global:
-    - PROJ_NAME=hello_world
+    - PROJ_NAME=webalglib
 
 install:
   # Download and verify alpine-chroot-install script.
@@ -22,14 +22,13 @@ script:
   # Compile hello_world.c into JavaScript inside the Alpine chroot.
   # EM_USE_GLOBAL_CACHE=1 tells emscripten to use precompiled libraries from
   # the emscripten-libs-asmjs package. This speeds up the build significantly.
+  #- /alpine/enter-chroot $USER
+  #    EM_USE_GLOBAL_CACHE=1 emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
   - /alpine/enter-chroot $USER
-      EM_USE_GLOBAL_CACHE=1 emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
-  - /alpine/enter-chroot $USER
-      EM_USE_GLOBAL_CACHE=1 emcc -Os --closure 1 --memory-init-file 0 --emit-symbol-map
-      -o target/release/$PROJ_NAME.js hello_world.c
+      EM_USE_GLOBAL_CACHE=1 make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
-  - node target/debug/$PROJ_NAME.js
-  - node target/release/$PROJ_NAME.js
+  #- node target/debug/$PROJ_NAME.js
+  #- node target/release/$PROJ_NAME.js
 
 before_deploy: |
   for build in debug release; do
