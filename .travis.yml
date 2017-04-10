@@ -19,6 +19,8 @@ install:
   - sudo sh alpine-chroot-install -b edge
       -r 'https://nl.alpinelinux.org/alpine/edge/testing'
       -p emscripten -p emscripten-libs-asmjs -p closure-compiler
+      -p build-base
+  
 
 script:
   - mkdir -p target/debug target/release
