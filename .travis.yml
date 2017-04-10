@@ -41,7 +41,7 @@ script:
   - git clone https://github.com/bmaranville/webalglib.git deploy
   - cd deploy
   - git checkout gh-pages
-  - git checkout $SOURCE_BRANCH -- src
+  - git checkout master -- src
   - /alpine/enter-chroot $USER
       EM_USE_GLOBAL_CACHE=1 make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
