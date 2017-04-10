@@ -58,7 +58,8 @@ deploy:
   skip_cleanup: true
   script:
     - git add apps
-    - git commit -am "Deploy to GitHub Pages"
+    - git commit -m "Deploy to GitHub Pages"
+    - git commit -am "some source files changed in Github Pages"
     - git push git@github.com:bmaranville/webalglib.git gh-pages
     # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
   on:
