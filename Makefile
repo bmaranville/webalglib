@@ -33,5 +33,5 @@ $(MAGREFL): src/magnetic.cc src/mag_wrap.cc src/reflcalc.h
 
 $(REFLFIT): src/reflectivity.cc src/magnetic.cc src/reflfit.cpp src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/refl_fit.cpp -o lib/reflfit.js
+	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/reflfit.cpp -o lib/reflfit.js
 
