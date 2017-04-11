@@ -41,7 +41,7 @@ script:
   - git clone https://github.com/bmaranville/webalglib.git deploy
   - cd deploy
   - git checkout gh-pages
-  - git checkout master -- src
+  - git checkout master -- src apps
   - /alpine/enter-chroot $USER
       EM_USE_GLOBAL_CACHE=1 make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
@@ -53,7 +53,7 @@ script:
 deploy:
   provider: script
   skip_cleanup: true
-  script: git add apps; git commit -m "Deploy to GitHub Pages"; git commit -am "some source files changed in Github Pages"; git push git@github.com:bmaranville/webalglib.git gh-pages
+  script: git add apps lib; git commit -m "Deploy to GitHub Pages"; git commit -am "some source files changed in Github Pages"; git push git@github.com:bmaranville/webalglib.git gh-pages
   # gh-pages; git add apps; git commit -m "adding build items"; git push origin gh-pages
   on:
     branch: master
