@@ -1,0 +1,139 @@
+html, body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  
+  font-family: sans, Sans-Serif !important;
+}
+
+header, footer {
+  min-height: 2em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+footer {
+  width: 100%;
+  text-align: center;
+}
+
+main.content {
+  flex: 1;
+}
+
+svg,
+canvas {
+  position: absolute;
+  image-rendering: optimizeSpeed;
+  image-rendering: crisp-edges;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+
+.axis-label {
+  font-size: 18px;
+}
+
+.axis .tick text {
+  font-size: 14px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+.grid path {
+      stroke-width: 1;
+      fill: none;
+}
+.grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+    user-select: none; 
+    -webkit-user-select: none; 
+    -moz-user-select: none;
+}
+ 
+.axis path {
+    fill: none;
+    stroke: #bbb;
+    shape-rendering: crispEdges;
+}
+ 
+.axis text {
+    fill: #555;
+}
+ 
+.axis line {	
+    stroke: #e7e7e7;
+    shape-rendering: crispEdges;
+}
+ 
+.axis .axis-label {
+    user-select: none; 
+    -webkit-user-select: none; 
+    -moz-user-select: none;
+}
+
+.legend, .tick {
+    user-select: none; 
+    -webkit-user-select: none; 
+    -moz-user-select: none;
+}
+ 
+.line {
+    fill: none;
+    stroke-width: 1.5px;
+}
+
+.highlight {
+    stroke-width: 4.5px;
+}
+ 
+.dot {
+    /* consider the stroke-with the mouse detect radius? */
+    stroke: transparent;
+    stroke-width: 10px;  
+    cursor: pointer;
+}
+ 
+.dot:hover {
+    stroke: rgba(68, 127, 255, 0.3);
+}
+
+.centerline {
+    stroke: orange;
+    stroke-dasharray: 10,2;
+}
+
+rect {
+  fill: none;
+  user-select: none; 
+  -webkit-user-select: none; 
+  -moz-user-select: none;
+}
+
+rect.zoom {
+  stroke: steelblue;
+  fill-opacity: 0.5;
+}
+
+circle.corner {
+  opacity: 0.5;
+}
+
+div.plotdiv {
+    width: 800;
+    height: 650;
+}

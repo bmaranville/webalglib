@@ -1,0 +1,296 @@
+<html>
+  <title>Levenberg-Marquardt weighted fitting</title>
+  <link rel="stylesheet" href="webfit.css" />
+  <script src="../lib/webfit.js"></script>
+  <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="//bmaranville.github.io/d3-science/lib/jquery-extend.js"></script>
+  <script src="//bmaranville.github.io/d3-science/lib/xy-chart.js" charset="utf-8"></script>
+  <script src="//bmaranville.github.io/d3-science/lib/polygon-interactor.js" charset="utf-8"></script>
+<script>
+  add_noise = true;
+  var normal = d3.random.normal(0,1);
+  function gauss(c, x) {
+    return (c[0] * Math.exp(-Math.pow((x - c[1]), 2) / (2.0 * Math.pow(c[2], 2))) + c[3]) 
+  };
+  function multigauss(c, x) {
+    // c should be of length 1 + 3n, where n is the number of peaks, as:
+    // c[0] = y0
+    // c[3n + 1] = amplitude_n
+    // c[3n + 2] = centerx_n
+    // c[3n + 3] = sigma_n
+    var y = c[0];
+    for (var ci=1; ci<c.length; ci+=3) {
+      var g = gauss(c.slice(ci, ci+3).concat([0]), x);
+      y += g;
+    }
+    return y;
+  }
+    
+  var source_data = {};
+  
+  function initialize_c(peaks, x, y) {
+    // y0 is taken as the minimum y,
+    // then n * [
+    //   amplitude is peak.y - y0
+    //   centerx_n is peak.x
+    //   sigma for all peaks = rms point spacing * constant
+    // ];
+    var sigma_mult = 1;
+    var xsorted = ([].concat(x)).sort(function(a,b) { return a-b });
+    var dx_sq = 0;
+    for (var i=0; i<xsorted.length-1; i++) {
+      dx_sq += Math.pow((xsorted[i+1] - xsorted[i]), 2);
+    }
+    var dx_rms = Math.sqrt(dx_sq / (xsorted.length - 1 || 1));
+    var sigma = dx_rms * sigma_mult;
+      
+    var c = [],
+    y0 = d3.min(y);
+    c[0] = y0; // y0
+    peaks.forEach(function(p) {
+      var c_n = [p[1] - y0, p[0], sigma];
+      c = c.concat(c_n);
+    });
+    return c;
+  }
+  
+  function generate_multigauss_function(num_peaks) {
+    // e.g. for n=1:
+    // c[0] * exp(-pow((x - c[1]),2)/(2.0*pow(c[2], 2))) + c[3]
+    var func = "c[0]"; // add y0 first
+    for (var n=0; n<num_peaks; n++) {
+      func += "+c[" + (3*n + 1).toFixed() + "]*exp(-pow((x-";
+      func +=  "c[" + (3*n + 2).toFixed() + "]),2)/(2.0*pow(";
+      func +=  "c[" + (3*n + 3).toFixed() + "],2)))";
+    }
+    return func
+  }
+  
+  function interpret_params(c, suffix) {
+    var suffix = suffix || "";
+    var output = {}
+    output["y0" + suffix] = c[0];
+    for (var ci=1, n=1; ci<c.length; ci+=3) {
+      output["Amplitude_" + n.toFixed() + suffix] = c[ci];
+      output["x_" + n.toFixed() + suffix] = c[ci+1];
+      output["sigma_" + n.toFixed() + suffix] = c[ci+2];
+      n++;
+    }
+    return output;
+  }
+  
+  window.onload = function() {
+    var x = d3.range(0, 5, 0.2);
+    var c = [0.1, 100.0, 1.5, 0.5, 50, 3.0, 0.6];
+    var y = x.map(function(d) { return multigauss(c,d) });
+    
+    var y_scatt = y.map(function(d) { 
+      var dy = Math.sqrt(d) + 0.5;
+      return d + normal() * dy;
+    });
+    var w = y.map(function(d) { return 1.0 / Math.sqrt((Math.abs(d) + 0.25)) });
+    var data;
+    if (add_noise) {
+      data = y_scatt.map(function(d,i) { 
+        var dy = Math.sqrt(Math.abs(d) + 0.25);
+        var err = {
+          xlower: x[i],
+          xupper: x[i],
+          yupper: d + dy,
+          ylower: d - dy
+        }
+        return [x[i], d, err];
+      })
+    } else {
+      data = y.map(function(d,i) { 
+        return [x[i], d]
+      })
+    }
+    var options = {
+      series: [
+        {label: 'data', show_line: false, show_errorbars: true},
+        {label: 'fit', show_line: true, show_errorbars: false, show_points: false}
+      ],
+      ytransform: 'linear', 
+      legend: {show: true},
+      show_errorbars: true}
+    var opts_points = { 
+      type:'Polygon',
+      radius: 10, 
+      name:'pick_centers',
+      color1: 'purple',
+      color2: 'LightOrange',
+      interpolation: 'linear',
+      prevent_crossing: false,
+      show_points: true,
+      show_lines: false,
+      close_path: false,
+      points: [[1.45, 90], [2.85, 55]]
+    }
+    window.chart = new xyChart.default(options);
+    window.center_points = new polygonInteractor.default(opts_points);
+    d3.select("#plot").data([[data]]).call(chart);
+    chart.interactors(center_points);
+    chart.zoomScroll(true);
+    
+    source_data.x = x;
+    source_data.y = y_scatt;
+    source_data.w = w;
+    source_data.u = "";
+    source_data.l = "";
+    
+    chart.svg.on("dblclick.resetzoom", null);
+    chart.svg.on("dblclick.add_peaks", function() {
+      var target = d3.event.target,
+          d3target = d3.select(target);
+      if (target.tagName == "circle" && d3target.classed("corner")) {
+        var point_num, t; 
+        chart.svg.selectAll("circle.corner").each(function(d,i) { 
+          if (this==target) { point_num = i; } 
+        });
+        if (point_num != null) { 
+          center_points.state.points.splice(point_num, 1);
+          center_points.update();
+          return;
+        }
+      }
+      var mouse = d3.mouse(chart.g.node());
+      var x = chart.x().invert(mouse[0]),
+          y = chart.y().invert(mouse[1]);
+      center_points.state.points.push([x,y]);
+      chart.update();
+    });
+    
+    function clear_peaks() {
+      center_points.state.points = []; chart.update();
+    }
+    
+    d3.select("button#reset_zoom").on('click', function() { chart.resetzoom(); });
+    d3.select("button#clear_peaks").on('click', function() { clear_peaks(); });
+    
+    d3.select("button#run_multigauss").on('click', function() { 
+      var x = source_data.x;
+      var x_out = x.map(function(d) { return [d] });
+      var xs = JSON.stringify(x_out);
+      var ys =  JSON.stringify(source_data.y);
+      var ws = JSON.stringify(source_data.w);
+      var peaks = center_points.state.points;
+      var num_peaks = peaks.length;
+      var fs = generate_multigauss_function(num_peaks);
+      var c = initialize_c(peaks, x, source_data.y);
+      
+      var cs = JSON.stringify(c)
+      var userfunc = eval("(function(c, x) { with(Math) return (" + fs + ") })");
+      Module.user_defined.func_def = fs;
+      var l = ""; //"[-Inf, -Inf, -Inf, -Inf]";
+      var u = ""; // [ Inf,  Inf,  Inf,  Inf]";
+      var start_time = Date.now();
+      var result = Module.fit_user_defined(xs, ys, ws, cs, l, u, userfunc);
+      var result_obj = JSON.parse(result);
+      var interpreted_params = JSON.stringify(interpret_params(result_obj.c), null, 2);
+      var interpreted_err = JSON.stringify(interpret_params(result_obj.c_err, "_err"), null, 2);
+      var end_time = Date.now();
+      d3.select("#result_text").text(interpreted_params + "\n" + interpreted_err + "\n" + result);
+      console.log("fitting time (ms): ", end_time - start_time);
+      //alert("fitting time (ms): " + (end_time - start_time).toFixed());
+      var c_context = {c: result_obj.c};
+      var sd = chart.source_data();
+      var x_range = d3.extent(x);
+      var dx = (x_range[1] - x_range[0])/200 || 0.1; 
+      var x_fit = d3.range(x_range[0], x_range[1], dx);
+      sd[1] = x_fit.map(function(d) {
+        var x_context = {x: [d.toPrecision(12)]};
+        var y_fit;
+        with(c_context) with(Math) with(x_context)  { y_fit = eval(fs) };
+        return [d, y_fit]
+      });
+      chart.source_data(sd);
+      chart.update();
+    });
+    
+    d3.select("input#upload_file").on('change', import_data);
+    
+    function import_data() {
+      var file_input = document.getElementById('upload_file');
+      var file = file_input.files[0]; // only one file allowed
+      clear_peaks();
+      var result = null;
+      file_input.value = "";
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var raw_data = this.result;
+        var row, 
+            x = [], 
+            y = [], 
+            dy = [],
+            xmax = -Infinity,
+            xmin = +Infinity;
+        var lines = raw_data.split(/\r\n|\r|\n/g);
+        for (var i in lines) {
+          row = lines[i];
+          if (row[0] == '#') {
+            // header: skip for now
+          }
+          else {
+            var rowdata = row.split(/[\s,]+/)
+            if (rowdata.length >= 2) {
+                x.push(+(rowdata[0]));
+                //xmax = Math.max(xmax, x);
+                //xmin = Math.min(xmin, x);
+                y.push(+(rowdata[1]));
+                dy.push((rowdata[2] !=  null) ? +(rowdata[2]) : null);
+            }
+          }
+        }
+        
+        source_data.x = x;
+        source_data.y = y;
+        source_data.w = dy.map(function(d) { return 1.0 / (d || 0.5) });
+        
+        var data = x.map(function(d,i) {
+          var out = [x[i], y[i]];
+          if (dy[i] != null) {
+            out[2] = {
+              xlower: x[i],
+              xupper: x[i],
+              ylower: y[i] - dy[i],
+              yupper: y[i] + dy[i]
+            }
+          }
+          return out;
+        });
+        var sd = chart.source_data() || [];
+        sd[0] = data;
+        chart.source_data(sd);
+      }
+    
+      reader.readAsText(file);
+    }
+    
+    //d3.select("input#userdef").node().value = generate_multigauss_function(2);
+  }   
+</script>
+<body>
+  <header>
+    <label>Upload tab-delimited data (x y {optional dy}) 
+      <input type="file" multiple="false" id="upload_file" />
+    </label>
+  </header>
+  <main id="content" class="content">
+    <div id="plot" class="plotdiv"></div>
+    <div id="results" class="results">
+      <button id="reset_zoom">Reset zoom</button>
+      <button id="clear_peaks">Clear peaks</button>(double-click on graph to add/remove peaks)
+      <button id="run_multigauss">Multigauss fit</button>
+      <br>
+      <pre id="result_text"></pre>
+    </div>
+  </main>
+  <footer>
+  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
+    and <a href="https://kripken.github.io/emscripten-site/">emscripten</a>
+    and <a href="https://d3js.org/">d3.js</a>; source available on 
+    <a href="https://github.com/bmaranville/webalglib">github</a>
+  </footer>
+</body>
+</html>
