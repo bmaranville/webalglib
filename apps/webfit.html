@@ -1,7 +1,7 @@
 <html>
   <title>Levenberg-Marquardt weighted fitting</title>
   <link rel="stylesheet" href="webfit.css" />
-  <script src="../lib/webfit.js"></script>
+  
   <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="//bmaranville.github.io/d3-science/lib/jquery-extend.js"></script>
   <script src="//bmaranville.github.io/d3-science/lib/xy-chart.js" charset="utf-8"></script>
@@ -182,8 +182,11 @@
     
       reader.readAsText(file);
     }
-  }   
+  }
+  var Module = Module || {};
+  Module['memoryInitializerPrefixURL'] = '../lib/';
 </script>
+<script src="../lib/webfit.js"></script>
 <body>
   <header>
     <label>Upload tab-delimited data (x y {optional dy}) 
