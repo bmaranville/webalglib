@@ -41,7 +41,7 @@ script:
   - git clone https://github.com/bmaranville/webalglib.git deploy
   - cd deploy
   - git checkout gh-pages
-  - git checkout master -- src apps
+  - git checkout master -- Makefile src apps
   - /alpine/enter-chroot $USER
       EM_USE_GLOBAL_CACHE=1 make clean
   - /alpine/enter-chroot $USER
