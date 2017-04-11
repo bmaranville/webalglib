@@ -43,6 +43,8 @@ script:
   - git checkout gh-pages
   - git checkout master -- src apps
   - /alpine/enter-chroot $USER
+      EM_USE_GLOBAL_CACHE=1 make clean
+  - /alpine/enter-chroot $USER
       EM_USE_GLOBAL_CACHE=1 make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
   #- node target/debug/$PROJ_NAME.js
