@@ -12,18 +12,20 @@ branches:
 env:
   global:
     - PROJ_NAME=webalglib
+    # EM_USE_GLOBAL_CACHE=1 tells emscripten to use precompiled libraries from
+    # the emscripten-libs-asmjs package. This speeds up the build significantly.
+    - EM_USE_GLOBAL_CACHE=1
 
 install:
   # Download and verify alpine-chroot-install script.
-  - wget https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/v0.2.0/alpine-chroot-install
-      && echo '7c6f0550f02d853d7275cfa82529e62a3a09d629  alpine-chroot-install' | sha1sum -c
+  - wget https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/v0.6.0/alpine-chroot-install
+      && echo 'a827a4ba3d0817e7c88bae17fe34e50204983d1e  alpine-chroot-install' | sha1sum -c
   # Install Alpine Linux into /alpine and prepare there a chroot environment;
-  # use branch edge (i.e. unstable), add testing repository and install
-  # packages for Emscripten.
-  - sudo sh alpine-chroot-install -b edge
+  # add testing repository and install packages for Emscripten.
+  - sudo sh alpine-chroot-install -b v3.6
       -r 'https://nl.alpinelinux.org/alpine/edge/testing'
-      -p emscripten -p emscripten-libs-asmjs -p closure-compiler
-      -p make
+      -p 'emscripten emscripten-libs-asmjs closure-compiler make'
+      -k 'CI TRAVIS_.* EM_.*'
   
 before_script:
   - openssl aes-256-cbc -K $encrypted_18fb29e1166b_key -iv $encrypted_18fb29e1166b_iv -in .travis/deploy_key.enc -out /tmp/deploy_key -d
@@ -34,18 +36,14 @@ before_script:
 script:
   #- mkdir -p target/debug target/release
   # Compile hello_world.c into JavaScript inside the Alpine chroot.
-  # EM_USE_GLOBAL_CACHE=1 tells emscripten to use precompiled libraries from
-  # the emscripten-libs-asmjs package. This speeds up the build significantly.
-  #- /alpine/enter-chroot $USER
-  #    EM_USE_GLOBAL_CACHE=1 emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
+  #- /alpine/enter-chroot -u $USER
+  #    emcc -O0 -g4 -o target/debug/$PROJ_NAME.js hello_world.c
   - git clone https://github.com/bmaranville/webalglib.git deploy
   - cd deploy
   - git checkout gh-pages
   - git checkout master -- README.md Makefile src apps
-  - /alpine/enter-chroot $USER
-      EM_USE_GLOBAL_CACHE=1 make clean
-  - /alpine/enter-chroot $USER
-      EM_USE_GLOBAL_CACHE=1 make
+  - /alpine/enter-chroot -u $USER make clean
+  - /alpine/enter-chroot -u $USER make
   # Try to run the created JS file with nodejs on the host system (Ubuntu Trusty).
   #- node target/debug/$PROJ_NAME.js
   #- node target/release/$PROJ_NAME.js
