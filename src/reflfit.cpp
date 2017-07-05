@@ -28,10 +28,10 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
     const double *RHO = &cc[num_rows * offset++];
     const double *IRHO = &cc[num_rows * offset++];
           double *RHOM = &cc[num_rows * offset++];
-    const double *thetaM = &cc[num_rows * offset];
+    const double *thetaM = &cc[num_rows * offset++];
     
-    const double H = cc[num_rows*offset + 1];
-    const double AGUIDE = cc[num_rows*offset + 2];
+    const double H = cc[num_rows*offset + 0];
+    const double AGUIDE = cc[num_rows*offset + 1];
     
     vector<Cplx> U1(num_rows);
     vector<Cplx> U3(num_rows);    
