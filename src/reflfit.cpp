@@ -61,13 +61,13 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     
     const int num_rows = ((int)c.length() - 1) / 4;
     int offset = 0;
-
+    
     const double *D     = &c[num_rows * offset++];
     const double *SIGMA = &c[num_rows * offset++ + 1]; // skip the first sigma
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
-    const double BKG = cc[num_rows*offset + 0];
+    const double BKG = c[num_rows*offset + 0];
     
     Cplx R;
     
