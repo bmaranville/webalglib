@@ -59,7 +59,7 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     // depth, sigma, rho, irho
     // so c should always have size (4*n)
     
-    const int num_rows = ((int)c.length()) / 4;
+    const int num_rows = ((int)c.length() - 1) / 4;
     int offset = 0;
 
     const double *D     = &c[num_rows * offset++];
@@ -67,11 +67,13 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
+    const double BKG = cc[num_rows*offset + 0];
+    
     Cplx R;
     
     refl(num_rows, x[0], D, SIGMA, RHO, IRHO, R);
     
-    func = norm(R);
+    func = norm(R) + BKG;
 }
 
 
