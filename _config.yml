@@ -1,1 +1,3 @@
+title: "Web versions of ALGLIB"
 theme: jekyll-theme-minimal
+baseurl: "/webalglib"
