@@ -31,9 +31,8 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
           double *RHOM = &cc[num_rows * offset++];
     const double *thetaM = &cc[num_rows * offset++];
     
-    const double H = cc[num_rows*offset];
+    const double H = cc[num_rows*offset + 0];
     const double AGUIDE = cc[num_rows*offset + 1];
-    //printf("H: %.12f\n", H);
     
     vector<Cplx> U1(num_rows);
     vector<Cplx> U3(num_rows);    
@@ -63,15 +62,15 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     
     const int num_rows = (c.length() - 1) / 4;
     int offset = 0;
-
+    
     const double *D     = &c[num_rows * offset++];
     const double *SIGMA = &c[num_rows * offset++ + 1]; // skip the first sigma
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
-    const double BKG = c[num_rows * offset];
+    const double BKG = c[num_rows*offset + 0];
     //printf("BKG: %.12f at %d\n", BKG, num_rows * offset);
-
+    
     Cplx R;
     
     refl(num_rows, x[0], D, SIGMA, RHO, IRHO, R);
