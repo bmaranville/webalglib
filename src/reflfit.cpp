@@ -2,6 +2,7 @@
 #include "interpolation.h"
 #include <emscripten/bind.h>
 #include <emscripten.h>
+#include <stdio.h>
 
 using std::string;
 using std::vector;
@@ -28,10 +29,11 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
     const double *RHO = &cc[num_rows * offset++];
     const double *IRHO = &cc[num_rows * offset++];
           double *RHOM = &cc[num_rows * offset++];
-    const double *thetaM = &cc[num_rows * offset];
+    const double *thetaM = &cc[num_rows * offset++];
     
-    const double H = cc[num_rows*offset + 1];
-    const double AGUIDE = cc[num_rows*offset + 2];
+    const double H = cc[num_rows*offset];
+    const double AGUIDE = cc[num_rows*offset + 1];
+    //printf("H: %.12f\n", H);
     
     vector<Cplx> U1(num_rows);
     vector<Cplx> U3(num_rows);    
@@ -59,7 +61,7 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     // depth, sigma, rho, irho
     // so c should always have size (4*n)
     
-    const int num_rows = ((int)c.length()) / 4;
+    const int num_rows = (c.length() - 1) / 4;
     int offset = 0;
 
     const double *D     = &c[num_rows * offset++];
@@ -67,11 +69,14 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
+    const double BKG = c[num_rows * offset];
+    //printf("BKG: %.12f at %d\n", BKG, num_rows * offset);
+
     Cplx R;
     
     refl(num_rows, x[0], D, SIGMA, RHO, IRHO, R);
     
-    func = norm(R);
+    func = norm(R) + BKG;
 }
 
 
