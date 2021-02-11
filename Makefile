@@ -17,7 +17,7 @@ clean:
 
 $(ALGLIB): $(LIBSRC)
 	mkdir -p alglib_cpp/lib
-	$(EMCC) -I$(SRC) $(LIBSRC) -o $(ALGLIB)
+	$(EMCC) -I$(SRC) $(LIBSRC) -r -o $(ALGLIB)
 
 $(WEBFIT): src/webfit.cpp
 	mkdir -p lib

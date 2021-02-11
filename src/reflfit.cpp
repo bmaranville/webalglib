@@ -2,6 +2,7 @@
 #include "interpolation.h"
 #include <emscripten/bind.h>
 #include <emscripten.h>
+#include <stdio.h>
 
 using std::string;
 using std::vector;
@@ -59,7 +60,7 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     // depth, sigma, rho, irho
     // so c should always have size (4*n)
     
-    const int num_rows = ((int)c.length() - 1) / 4;
+    const int num_rows = (c.length() - 1) / 4;
     int offset = 0;
     
     const double *D     = &c[num_rows * offset++];
@@ -68,6 +69,7 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     const double *IRHO  = &c[num_rows * offset++];
     
     const double BKG = c[num_rows*offset + 0];
+    //printf("BKG: %.12f at %d\n", BKG, num_rows * offset);
     
     Cplx R;
     
