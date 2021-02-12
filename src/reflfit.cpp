@@ -78,6 +78,22 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     func = norm(R) + BKG;
 }
 
+void function_progress_callback(const real_1d_array &c, double func, void *ptr) {
+    int* step_ptr = (int*) ptr;
+    if ((*step_ptr) % 10 == 0) {
+        val user_defined = val::module_property("user_defined");
+        if (user_defined.hasOwnProperty("progress_callback")) {
+            val progress_callback = user_defined["progress_callback"];
+            string output = "{\n";
+            output += "  \"c\": " + c.tostring(6);
+            output += ",\n  \"f\": " + std::to_string(func);
+            output += ",\n  \"step\": " + std::to_string(*step_ptr);
+            output += "\n}";
+            progress_callback(output);
+        }
+    }
+    (*step_ptr)++;
+}
 
 void eval_func(
     fptr func,
@@ -134,7 +150,9 @@ string fit_1d(
     }
     alglib::lsfitsetscale(state, s);
     lsfitsetcond(state, epsf, epsx, maxits);
-    alglib::lsfitfit(state, func, NULL, option_ptr);
+    lsfitsetxrep(state, true);
+    int step_counter = 0;
+    alglib::lsfitfit(state, func, function_progress_callback, &step_counter);
     lsfitresults(state, info, c, rep);
     
     real_1d_array y_fit;
@@ -159,9 +177,11 @@ string fit_refl(
     const string cs,
     const string ss,
     const string lower_bound,
-    const string upper_bound
+    const string upper_bound,
+    emscripten::val progress_callback
 )
 {
+    val::module_property("user_defined").set("progress_callback", progress_callback);
     return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_refl);
 }
 
@@ -173,9 +193,11 @@ string fit_magrefl(
     const string cs,
     const string ss,
     const string lower_bound,
-    const string upper_bound
+    const string upper_bound,
+    emscripten::val progress_callback
 )
 {
+    val::module_property("user_defined").set("progress_callback", progress_callback);
     return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_magrefl);
 }
 
