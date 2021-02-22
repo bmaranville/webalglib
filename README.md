@@ -1,6 +1,6 @@
 # webalglib
 
-Some wrappers for functions from the [ALGLIB C++ math library](http://www.alglib.net/) for use with web applications, using [Emscripten](http://emscripten.org/) to compile C++ to Javascript.
+Fitting functions using the (lsfit package) from the [ALGLIB C++ math library](http://www.alglib.net/) for use with web applications, using [Emscripten](http://emscripten.org/) to compile C++ to Javascript.
 
 Examples include
 
