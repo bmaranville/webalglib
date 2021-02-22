@@ -118,7 +118,6 @@ string fit_1d(
     real_1d_array c = cs.c_str();
     string output = "{\n";
     
-    double epsf = 0;
     double epsx = 0.000001;
     ae_int_t maxits = 0;
     ae_int_t info;
@@ -132,7 +131,7 @@ string fit_1d(
         real_1d_array bndu = upper_bound.c_str();
         lsfitsetbc(state, bndl, bndu);
     }
-    lsfitsetcond(state, epsf, epsx, maxits);
+    lsfitsetcond(state, epsx, maxits);
     alglib::lsfitfit(state, func, NULL, option_ptr);
     lsfitresults(state, info, c, rep);
     

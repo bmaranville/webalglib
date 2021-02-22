@@ -134,7 +134,6 @@ string fit_1d(
     real_1d_array c = cs.c_str();
     real_1d_array s = ss.c_str();
         
-    double epsf = 0;
     double epsx = 0.000001;
     ae_int_t maxits = 0;
     ae_int_t info;
@@ -149,7 +148,7 @@ string fit_1d(
         lsfitsetbc(state, bndl, bndu);
     }
     alglib::lsfitsetscale(state, s);
-    lsfitsetcond(state, epsf, epsx, maxits);
+    lsfitsetcond(state, epsx, maxits);
     lsfitsetxrep(state, true);
     int step_counter = 0;
     alglib::lsfitfit(state, func, function_progress_callback, &step_counter);
