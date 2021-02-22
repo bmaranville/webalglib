@@ -3,10 +3,10 @@ ALGLIB=alglib/cpp/lib/alglib.bc
 SRC=alglib/cpp/src
 APP=$(wildcard src/*.cpp)
 
-WEBFIT=lib/webfit.js
-REFL=lib/refl.js
-MAGREFL=lib/magrefl.js
-REFLFIT=lib/reflfit.js
+WEBFIT=lib/webfit.*
+REFL=lib/refl.*
+MAGREFL=lib/magrefl.*
+REFLFIT=lib/reflfit.*
 
 EMCC=emcc -O3
 
@@ -16,8 +16,8 @@ clean:
 	rm -f $(wildcard $(ALGLIB)* $(WEBFIT)* $(REFL)* $(MAGREFL)* $(REFLFIT)*)
 
 $(ALGLIB): $(LIBSRC)
-	curl $(ALGLIB_URL) -o alglib.zip
-	unzip alglib.zip -d alglib
+	curl $(ALGLIB_URL) > alglib.zip
+	unzip -o alglib.zip -d alglib
 	mkdir -p alglib_cpp/lib
 	$(EMCC) -I$(SRC)  $(SRC)/*.cpp -r -o $(ALGLIB)
 
