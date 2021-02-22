@@ -1,6 +1,6 @@
-ALGLIB=alglib_cpp/lib/alglib.bc
-SRC=alglib_cpp/src
-LIBSRC=$(wildcard $(SRC)/*.cpp)
+ALGLIB_URL="https://www.alglib.net/translator/re/alglib-3.17.0.cpp.gpl.zip"
+ALGLIB=alglib/cpp/lib/alglib.bc
+SRC=alglib/cpp/src
 APP=$(wildcard src/*.cpp)
 
 WEBFIT=lib/webfit.js
@@ -16,8 +16,10 @@ clean:
 	rm -f $(wildcard $(ALGLIB)* $(WEBFIT)* $(REFL)* $(MAGREFL)* $(REFLFIT)*)
 
 $(ALGLIB): $(LIBSRC)
+	curl $(ALGLIB_URL) -o alglib.zip
+	unzip alglib.zip -d alglib
 	mkdir -p alglib_cpp/lib
-	$(EMCC) -I$(SRC) $(LIBSRC) -r -o $(ALGLIB)
+	$(EMCC) -I$(SRC)  $(SRC)/*.cpp -r -o $(ALGLIB)
 
 $(WEBFIT): src/webfit.cpp
 	mkdir -p lib
