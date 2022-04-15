@@ -21,17 +21,17 @@ $(ALGLIB): $(LIBSRC)
 
 $(WEBFIT): src/webfit.cpp
 	mkdir -p lib
-	emcc -O3 --bind -I$(SRC) $(ALGLIB) src/webfit.cpp -o lib/webfit.js
+	emcc -O3 --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/webfit.cpp -o lib/webfit.js
 
 $(REFL): src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/reflectivity.cc src/refl_wrap.cc -o lib/refl.js
+	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/reflectivity.cc src/refl_wrap.cc -o lib/refl.js
 
 $(MAGREFL): src/magnetic.cc src/mag_wrap.cc src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/mag_wrap.cc -o lib/magrefl.js
+	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/magnetic.cc src/mag_wrap.cc -o lib/magrefl.js
 
 $(REFLFIT): src/reflectivity.cc src/magnetic.cc src/reflfit.cpp src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/reflfit.cpp -o lib/reflfit.js
+	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/reflfit.cpp -o lib/reflfit.js
 
