@@ -164,6 +164,7 @@
       var x = chart.x().invert(mouse[0]),
           y = chart.y().invert(mouse[1]);
       center_points.state.points.push([x,y]);
+      center_points.update();
       chart.update();
     });
     
