@@ -69,13 +69,14 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     const double *IRHO  = &c[num_rows * offset++];
     
     const double BKG = c[num_rows*offset + 0];
+    const double I0 = c[num_rows*offset + 1];
     //printf("BKG: %.12f at %d\n", BKG, num_rows * offset);
     
     Cplx R;
     
     refl(num_rows, x[0], D, SIGMA, RHO, IRHO, R);
     
-    func = norm(R) + BKG;
+    func = I0 * norm(R) + BKG;
 }
 
 void function_progress_callback(const real_1d_array &c, double func, void *ptr) {
