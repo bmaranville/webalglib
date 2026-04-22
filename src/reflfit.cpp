@@ -100,7 +100,7 @@ void eval_func(
     }
 }
 
-string fit_1d(
+val fit_1d(
     const string xs,
     const string ys,
     const string ws,
@@ -140,19 +140,29 @@ string fit_1d(
     real_1d_array y_fit;
     eval_func(func, c, x, y_fit, option_ptr);
     
-    string output = "{\n";
-    output += "  \"c\": " + c.tostring(6);
-    output += ",\n  \"c_err\": " + rep.errpar.tostring(6);
-    output += ",\n  \"iterations\": " + std::to_string(rep.iterationscount);
-    output += ",\n  \"rmserror\": " + std::to_string(rep.rmserror);
-    output += ",\n  \"wrmserror\": " + std::to_string(rep.wrmserror);
-    
-    output += ",\n  \"y_fit\": " + y_fit.tostring(6);
-    output += "\n}"; 
-    return output;
+    // Build a JavaScript object with the results instead of a JSON string
+    val result = val::object();
+
+    // Helper to convert alglib real_1d_array to a JS array
+    auto array_to_val = [](const real_1d_array& arr) {
+        val js_arr = val::array();
+        for (int i = 0; i < arr.length(); ++i) {
+            js_arr.set(i, arr[i]);
+        }
+        return js_arr;
+    };
+
+    result.set("c", array_to_val(c));
+    result.set("c_err", array_to_val(rep.errpar));
+    result.set("iterations", rep.iterationscount);
+    result.set("rmserror", rep.rmserror);
+    result.set("wrmserror", rep.wrmserror);
+    result.set("y_fit", array_to_val(y_fit));
+
+    return result;
 }
 
-string fit_refl(
+val fit_refl(
     const string xs,
     const string ys,
     const string ws,
@@ -166,7 +176,7 @@ string fit_refl(
 }
 
 
-string fit_magrefl(
+val fit_magrefl(
     const string xs,
     const string ys,
     const string ws,
@@ -191,7 +201,7 @@ void function_user_defined(const real_1d_array &c, const real_1d_array &x, doubl
     func = output.as<double>();
 }
 
-string fit_user_defined(
+val fit_user_defined(
     const string xs,
     const string ys,
     const string ws,
