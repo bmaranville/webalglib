@@ -1,37 +1,52 @@
-ALGLIB=alglib_cpp/lib/alglib.bc
+
 SRC=alglib_cpp/src
 LIBSRC=$(wildcard $(SRC)/*.cpp)
 APP=$(wildcard src/*.cpp)
+
+# Object and static library paths
+ALGLIB_OBJS=$(patsubst $(SRC)/%.cpp,alglib_cpp/obj/%.o,$(LIBSRC))
+ALGLIB_STATIC=alglib_cpp/lib/libalglib.a
 
 WEBFIT=lib/webfit.js
 REFL=lib/refl.js
 MAGREFL=lib/magrefl.js
 REFLFIT=lib/reflfit.js
 
+
+# Common flags for Emscripten ES6 module output
+FLAGS=--bind -sSINGLE_FILE -sEXPORT_ES6=1 -sMODULARIZE=1
 EMCC=emcc -O3
 
-all: $(ALGLIB) $(WEBFIT) $(REFL) $(MAGREFL) $(REFLFIT)
+all: $(ALGLIB_STATIC) $(WEBFIT) $(REFL) $(MAGREFL) $(REFLFIT)
 
 clean:
 	rm -f $(wildcard $(ALGLIB)* $(WEBFIT)* $(REFL)* $(MAGREFL)* $(REFLFIT)*)
+	rm -rf alglib_cpp/obj/*.o alglib_cpp/lib/libalglib.a
 
-$(ALGLIB): $(LIBSRC)
+
+# Compile each ALGLIB source to object file
+alglib_cpp/obj/%.o: $(SRC)/%.cpp
+	mkdir -p alglib_cpp/obj
+	emcc -O3 -I$(SRC) -c $< -o $@
+
+# Archive object files into a static library
+$(ALGLIB_STATIC): $(ALGLIB_OBJS)
 	mkdir -p alglib_cpp/lib
-	$(EMCC) -I$(SRC) $(LIBSRC) -r -o $(ALGLIB)
+	emar rcs $@ $^
 
-$(WEBFIT): src/webfit.cpp
+$(WEBFIT): $(ALGLIB_STATIC) src/webfit.cpp
 	mkdir -p lib
-	emcc -O3 --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/webfit.cpp -o lib/webfit.js
+	emcc -O3 $(FLAGS) -I$(SRC) $^ -o lib/webfit.js
 
-$(REFL): src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h
+$(REFL): $(ALGLIB_STATIC) src/reflectivity.cc src/refl_wrap.cc src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/reflectivity.cc src/refl_wrap.cc -o lib/refl.js
+	$(EMCC) $(FLAGS) -I$(SRC) $(ALGLIB_STATIC) src/reflectivity.cc src/refl_wrap.cc -o lib/refl.js
 
-$(MAGREFL): src/magnetic.cc src/mag_wrap.cc src/reflcalc.h
+$(MAGREFL): $(ALGLIB_STATIC) src/magnetic.cc src/mag_wrap.cc src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/magnetic.cc src/mag_wrap.cc -o lib/magrefl.js
+	$(EMCC) $(FLAGS) -I$(SRC) $(ALGLIB_STATIC) src/magnetic.cc src/mag_wrap.cc -o lib/magrefl.js
 
-$(REFLFIT): src/reflectivity.cc src/magnetic.cc src/reflfit.cpp src/reflcalc.h
+$(REFLFIT): $(ALGLIB_STATIC) src/reflectivity.cc src/magnetic.cc src/reflfit.cpp src/reflcalc.h
 	mkdir -p lib
-	$(EMCC) --bind -sSINGLE_FILE -I$(SRC) $(ALGLIB) src/magnetic.cc src/reflectivity.cc src/reflfit.cpp -o lib/reflfit.js
+	$(EMCC) $(FLAGS) -I$(SRC) $(ALGLIB_STATIC) src/reflectivity.cc src/magnetic.cc src/reflfit.cpp -o lib/reflfit.js
 
