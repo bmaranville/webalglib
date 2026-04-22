@@ -20,7 +20,7 @@ EMCC=emcc -O3
 all: $(ALGLIB_STATIC) $(WEBFIT) $(REFL) $(MAGREFL) $(REFLFIT)
 
 clean:
-	rm -f $(wildcard $(ALGLIB)* $(WEBFIT)* $(REFL)* $(MAGREFL)* $(REFLFIT)*)
+	rm -f $(wildcard $(ALGLIB_STATIC)* $(ALGLIB_OBJS)* $(WEBFIT)* $(REFL)* $(MAGREFL)* $(REFLFIT)*)
 	rm -rf alglib_cpp/obj/*.o alglib_cpp/lib/libalglib.a
 
 
